@@ -2,7 +2,7 @@
   "profiles": {
     "Api": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7290",
+      "commandLineArgs": "start --cors *",
       "launchBrowser": false
     }
   }

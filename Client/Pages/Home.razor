@@ -1,7 +1,43 @@
 ﻿@page "/"
+@inject HttpClient Http
+@using Data
 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
+
+<button class="btn btn-primary" @onclick="GetCompanyData">Get</button>
+
+@if (_companies == null) {
+	<p><em>Loading...</em></p>
+}
+else {
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Id</th>
+				<th>Name</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var company in _companies) {
+				<tr>
+					<td>@company.Id</td>
+					<td>@company.Name</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+
+@code {
+	private List<Company> _companies = new List<Company>();
+
+	private async Task GetCompanyData() {
+		var company = await Http.GetFromJsonAsync<Company>("api/GetCompany");
+		_companies.Add(company);
+	}
+
+}
