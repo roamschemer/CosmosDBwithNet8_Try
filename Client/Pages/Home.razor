@@ -18,6 +18,7 @@ else {
 		<thead>
 			<tr>
 				<th>Id</th>
+				<th>Category</th>
 				<th>Name</th>
 			</tr>
 		</thead>
@@ -25,6 +26,7 @@ else {
 			@foreach (var company in _companies) {
 				<tr>
 					<td>@company.Id</td>
+					<td>@company.Category</td>
 					<td>@company.Name</td>
 				</tr>
 			}

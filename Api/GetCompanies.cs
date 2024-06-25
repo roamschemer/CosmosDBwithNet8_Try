@@ -20,10 +20,12 @@ namespace Api
 			_logger.LogInformation("C# HTTP trigger function processed a request.");
 			var random = new Random();
 			var companies = new List<Company>();
+			var categories = (Company.CategoryDatas[])Enum.GetValues(typeof(Company.CategoryDatas));
 			companies = Enumerable
 				.Range(0, 10)
 				.Select(_ => new Company() {
 					Id = Guid.NewGuid(),
+					Category = categories[random.Next(categories.Length)],
 					Name = new string(Enumerable.Repeat("ABCDEFGabcdefg", 20).Select(s => s[random.Next(s.Length)]).ToArray())
 				})
 				.ToList();
