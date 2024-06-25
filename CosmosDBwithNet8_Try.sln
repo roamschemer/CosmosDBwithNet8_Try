@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35004.147
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{370A8232-8728-4637-8383-BCFFE21E68EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionApp1", "FunctionApp1\FunctionApp1.csproj", "{899BE64B-6A04-4894-AFD5-178D89D5B2C7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "Data\Data.csproj", "{49D2AEC4-362E-4DB1-83BE-BB9ABE60FD44}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{370A8232-8728-4637-8383-BCFFE21E68EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{370A8232-8728-4637-8383-BCFFE21E68EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{370A8232-8728-4637-8383-BCFFE21E68EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{370A8232-8728-4637-8383-BCFFE21E68EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{899BE64B-6A04-4894-AFD5-178D89D5B2C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{899BE64B-6A04-4894-AFD5-178D89D5B2C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{899BE64B-6A04-4894-AFD5-178D89D5B2C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{899BE64B-6A04-4894-AFD5-178D89D5B2C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49D2AEC4-362E-4DB1-83BE-BB9ABE60FD44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49D2AEC4-362E-4DB1-83BE-BB9ABE60FD44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49D2AEC4-362E-4DB1-83BE-BB9ABE60FD44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49D2AEC4-362E-4DB1-83BE-BB9ABE60FD44}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {08FAA2AB-7498-4868-B094-38BDBB430CE6}
+	EndGlobalSection
+EndGlobal
