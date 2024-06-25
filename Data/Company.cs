@@ -13,7 +13,7 @@ namespace Data
 		}
 
 		[JsonPropertyName("id")]
-		public Guid? Id { get; set; }
+		public string? Id { get; set; }
 		[JsonPropertyName("category_id")]
 		public CategoryDatas Category { get; set; } = CategoryDatas.User;
 		[JsonPropertyName("name")]
