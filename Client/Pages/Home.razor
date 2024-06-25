@@ -33,11 +33,8 @@ else {
 }
 
 @code {
-	private List<Company> _companies = new List<Company>();
+	private List<Company>? _companies = new List<Company>();
 
-	private async Task GetCompanyData() {
-		var company = await Http.GetFromJsonAsync<Company>("api/GetCompany");
-		_companies.Add(company);
-	}
+	private async Task GetCompanyData() => _companies = await Http.GetFromJsonAsync<List<Company>>("api/companies");
 
 }
