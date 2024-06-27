@@ -18,8 +18,10 @@ namespace Data
 		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public CategoryDatas Category { get; set; } = CategoryDatas.User;
 
+		[JsonPropertyName("name")]
 		public string Name { get; set; }
 
+		[JsonPropertyName("created_at")]
 		public DateTime CreatedAt { get; set; }
 	}
 }
