@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Api
+namespace Api.Companies
 {
 	public class GetCompanies
 	{
@@ -34,9 +34,10 @@ namespace Api
 			var container = client.GetContainer(databaseName, "companies");
 
 			IQueryable<Company> queryable = container.GetItemLinqQueryable<Company>()
-				.Where(c => string.IsNullOrEmpty(name) || c.Name.Contains(name));
+				.Where(c => string.IsNullOrEmpty(name) || c.Name.Contains(name))
+				.OrderByDescending(c => c.CreatedAt);
 
-			var iterator = queryable.ToFeedIterator<Company>();
+			var iterator = queryable.ToFeedIterator();
 
 			var companies = new List<Company>();
 			while (iterator.HasMoreResults) {

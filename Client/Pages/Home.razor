@@ -4,41 +4,64 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Company Search</h1>
+<h1>Company Management</h1>
 
-<div class="form-group">
-	<label for="name">Name:</label>
-	<input type="text" id="name" @bind="searchName" class="form-control" />
+<div class="row">
+	<div class="col-md-6">
+		<h2>Company Search</h2>
+		<div class="form-group">
+			<label for="name">Name:</label>
+			<input type="text" id="name" @bind="searchName" class="form-control" />
+		</div>
+		<button class="btn btn-primary" @onclick="GetCompanyData">Search</button>
+
+		@if (_companies == null) {
+			<p><em>Loading...</em></p>
+		}
+		else {
+			<table class="table mt-3">
+				<thead>
+					<tr>
+						<th>Id</th>
+						<th>Category</th>
+						<th>Name</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var company in _companies) {
+						<tr>
+							<td>@company.Id</td>
+							<td>@company.Category</td>
+							<td>@company.Name</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		}
+	</div>
+	<div class="col-md-6">
+		<h2>Add New Company</h2>
+		<div class="form-group">
+			<label for="newCompanyName">Name:</label>
+			<input type="text" id="newCompanyName" @bind="newCompany.Name" class="form-control" />
+		</div>
+		<div class="form-group">
+			<label for="newCompanyCategory">Category:</label>
+			<select id="newCompanyCategory" @bind="newCompany.Category" class="form-control">
+				<option value="Admin">Admin</option>
+				<option value="User">User</option>
+				<option value="PowerUser">PowerUser</option>
+				<option value="Customer">Customer</option>
+			</select>
+		</div>
+		<button class="btn btn-success" @onclick="AddCompany">Add Company</button>
+	</div>
 </div>
-<button class="btn btn-primary" @onclick="GetCompanyData">Search</button>
-
-@if (_companies == null) {
-	<p><em>Loading...</em></p>
-}
-else {
-	<table class="table">
-		<thead>
-			<tr>
-				<th>Id</th>
-				<th>Category</th>
-				<th>Name</th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach (var company in _companies) {
-				<tr>
-					<td>@company.Id</td>
-					<td>@company.Category</td>
-					<td>@company.Name</td>
-				</tr>
-			}
-		</tbody>
-	</table>
-}
 
 @code {
 	private List<Company>? _companies;
 	private string searchName = string.Empty;
+	private Company newCompany = new Company();
 
 	private async Task GetCompanyData() {
 		var query = "api/companies";
@@ -53,5 +76,21 @@ else {
 		}
 
 		_companies = await Http.GetFromJsonAsync<List<Company>>(query);
+	}
+
+	private async Task AddCompany() {
+		var response = await Http.PostAsJsonAsync("api/companies", newCompany);
+
+		if (response.IsSuccessStatusCode) {
+			var addedCompany = await response.Content.ReadFromJsonAsync<Company>();
+			if (_companies == null) {
+				_companies = new List<Company>();
+			}
+			_companies.Add(addedCompany);
+			newCompany = new Company(); // Reset the form
+		}
+		else {
+			// Handle error
+		}
 	}
 }
