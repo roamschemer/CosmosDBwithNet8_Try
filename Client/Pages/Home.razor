@@ -4,11 +4,13 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Company Search</h1>
 
-Welcome to your new app.
-
-<button class="btn btn-primary" @onclick="GetCompanyData">Get</button>
+<div class="form-group">
+	<label for="name">Name:</label>
+	<input type="text" id="name" @bind="searchName" class="form-control" />
+</div>
+<button class="btn btn-primary" @onclick="GetCompanyData">Search</button>
 
 @if (_companies == null) {
 	<p><em>Loading...</em></p>
@@ -35,8 +37,21 @@ else {
 }
 
 @code {
-	private List<Company>? _companies = new List<Company>();
+	private List<Company>? _companies;
+	private string searchName = string.Empty;
 
-	private async Task GetCompanyData() => _companies = await Http.GetFromJsonAsync<List<Company>>("api/companies");
+	private async Task GetCompanyData() {
+		var query = "api/companies";
+		var parameters = new List<string>();
 
+		if (!string.IsNullOrEmpty(searchName)) {
+			parameters.Add($"name={searchName}");
+		}
+
+		if (parameters.Any()) {
+			query += "?" + string.Join("&", parameters);
+		}
+
+		_companies = await Http.GetFromJsonAsync<List<Company>>(query);
+	}
 }

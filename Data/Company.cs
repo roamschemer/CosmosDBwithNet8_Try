@@ -12,11 +12,11 @@ namespace Data
 			Customer,
 		}
 
-		[JsonPropertyName("id")]
-		public string? Id { get; set; }
-		[JsonPropertyName("category_id")]
+		public string Id { get; set; }
+
+		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public CategoryDatas Category { get; set; } = CategoryDatas.User;
-		[JsonPropertyName("name")]
-		public string? Name { get; set; }
+
+		public string Name { get; set; }
 	}
 }

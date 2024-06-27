@@ -1,9 +1,15 @@
 using Data;
+using Google.Protobuf.Reflection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Api
 {
@@ -16,27 +22,28 @@ namespace Api
 		}
 
 		[Function(nameof(GetCompanies))]
-		public IActionResult Run(
+		public async Task<IActionResult> Run(
 			[HttpTrigger(AuthorizationLevel.Function, "get", Route = "companies")] HttpRequest req,
-			[CosmosDBInput(
-				databaseName: "%CosmosDb%",
-				containerName: "companies",
-				Connection  = "CosmosDBConnection",
-				SqlQuery = "SELECT * FROM c")] IEnumerable<Company> companies
-
-		) {
+			[CosmosDBInput(Connection = "CosmosDBConnection")] CosmosClient client) {
 			_logger.LogInformation("C# HTTP trigger function processed a request.");
-			//var random = new Random();
-			//var companies = new List<Company>();
-			//var categories = (Company.CategoryDatas[])Enum.GetValues(typeof(Company.CategoryDatas));
-			//companies = Enumerable
-			//	.Range(0, 10)
-			//	.Select(_ => new Company() {
-			//		Id = Guid.NewGuid(),
-			//		Category = categories[random.Next(categories.Length)],
-			//		Name = new string(Enumerable.Repeat("ABCDEFGabcdefg", 20).Select(s => s[random.Next(s.Length)]).ToArray())
-			//	})
-			//	.ToList();
+
+			var name = req.Query["name"].ToString();
+
+			var databaseName = Environment.GetEnvironmentVariable("CosmosDb");
+
+			var container = client.GetContainer(databaseName, "companies");
+
+			IQueryable<Company> queryable = container.GetItemLinqQueryable<Company>()
+				.Where(c => string.IsNullOrEmpty(name) || c.Name.Contains(name));
+
+			var iterator = queryable.ToFeedIterator<Company>();
+
+			var companies = new List<Company>();
+			while (iterator.HasMoreResults) {
+				var response = await iterator.ReadNextAsync();
+				companies.AddRange(response);
+			}
+
 			return new OkObjectResult(companies);
 		}
 	}
