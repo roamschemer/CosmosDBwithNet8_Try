@@ -22,7 +22,7 @@ namespace Api.Companies
 		[Function(nameof(PostCompanies))]
 		public async Task<IActionResult> Run(
 			[HttpTrigger(AuthorizationLevel.Function, "post", Route = "companies")] HttpRequest req) {
-			_logger.LogInformation("C# HTTP trigger function processed a request.");
+			_logger.LogInformation("C# HTTP trigger function processed a post request.");
 
 			string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 			var company = JsonSerializer.Deserialize<Company>(requestBody);

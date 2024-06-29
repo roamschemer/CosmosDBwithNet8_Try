@@ -71,8 +71,8 @@
 							<td>@company.Name</td>
 							<td>@company.CreatedAt</td>
 							<td>
-								<!-- Edit ボタン -->
 								<button class="btn btn-primary" @onclick="() => EditCompanyAsync(company)">Edit</button>
+								<button class="btn btn-primary" @onclick="() => DeleteCompanyAsync(company)">Delete</button>
 							</td>
 						</tr>
 					}
@@ -149,8 +149,18 @@
 		selectedCompany = company;
 	}
 
+	private async Task DeleteCompanyAsync(Company company) {
+		var response = await Http.DeleteAsync($"api/companies/{(int)company.Category}/{company.Id}");
+		if (response.IsSuccessStatusCode) {
+			await GetCompanyData(); // Fetch updated data
+		}
+		else {
+			// Handle error
+		}
+	}
+
 	private async Task UpdateCompanyAsync() {
-		var response = await Http.PatchAsJsonAsync($"api/companies/{selectedCompany.Category}/{selectedCompany.Id}", selectedCompany);
+		var response = await Http.PatchAsJsonAsync($"api/companies/{(int)selectedCompany.Category}/{selectedCompany.Id}", selectedCompany);
 		if (response.IsSuccessStatusCode) {
 			await GetCompanyData(); // Fetch updated data
 			selectedCompany = null; // Close the modal

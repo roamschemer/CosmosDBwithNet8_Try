@@ -21,10 +21,10 @@ namespace Api.Companies
 
 		[Function(nameof(PatchCompanies))]
 		public async Task<IActionResult> Run(
-			[HttpTrigger(AuthorizationLevel.Function, "patch", Route = "companies/{cagegory}/{id}")] HttpRequest req, int category, string id) {
+			[HttpTrigger(AuthorizationLevel.Function, "patch", Route = "companies/{category:int}/{id}")] HttpRequest req, int category, string id) {
 
 
-			_logger.LogInformation("C# HTTP trigger function processed a request.");
+			_logger.LogInformation("C# HTTP trigger function processed a patch request.");
 
 			var container = _cosmosClient.GetContainer(Environment.GetEnvironmentVariable("CosmosDb"), "companies");
 

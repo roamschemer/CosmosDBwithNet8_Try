@@ -21,7 +21,7 @@ namespace Api.Companies
 		[Function(nameof(GetCompanies))]
 		public async Task<IActionResult> Run(
 			[HttpTrigger(AuthorizationLevel.Function, "get", Route = "companies")] HttpRequest req) {
-			_logger.LogInformation("C# HTTP trigger function processed a request.");
+			_logger.LogInformation("C# HTTP trigger function processed a get request.");
 
 			var name = req.Query["name"].ToString();
 			var category = req.Query["category"].ToString();
