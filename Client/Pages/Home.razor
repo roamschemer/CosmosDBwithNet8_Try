@@ -1,33 +1,56 @@
 ﻿@page "/"
 @inject HttpClient Http
 @using Data
+@using System.Net.Http.Json
 @using System.Reflection
 @using static Data.Company
 
-<PageTitle>Home</PageTitle>
-
-<h1>Company Management</h1>
-
-<div class="row">
-	<div class="col-md-6">
-		<h2>Company Search</h2>
-		<div class="form-group">
-			<label for="name">Name:</label>
-			<input type="text" id="name" @bind="searchName" class="form-control" />
+<div class="mt-3">
+	<!-- 検索フォーム -->
+	<h2>Company Management</h2>
+	<div class="row mb-3">
+		<div class="col-md-6">
+			<h3>Company Search</h3>
+			<div class="form-group">
+				<label for="name">Name:</label>
+				<input type="text" id="name" @bind="searchName" class="form-control" />
+			</div>
+			<div class="form-group">
+				<label for="category">Category:</label>
+				<select id="category" @bind="searchCategory" class="form-control">
+					<option value="">All</option>
+					@foreach (var enumValue in Enum.GetValues(typeof(CategoryDatas))) {
+						<option value="@enumValue">@enumValue.ToString()</option>
+					}
+				</select>
+			</div>
+			<button class="btn btn-primary" @onclick="GetCompanyData">Search</button>
 		</div>
-		<div class="form-group">
-			<label for="category">Category:</label>
-			<select id="category" @bind="searchCategory" class="form-control">
-				<option value="">All</option>
-				@foreach (var enumValue in Enum.GetValues(typeof(CategoryDatas))) {
-					<option value="@enumValue">@enumValue.ToString()</option>
-				}
-			</select>
+		<div class="col-md-6">
+			<h3>Add New Company</h3>
+			<div class="form-group">
+				<label for="newCompanyName">Name:</label>
+				<input type="text" id="newCompanyName" @bind="newCompany.Name" class="form-control" />
+			</div>
+			<div class="form-group">
+				<label for="newCompanyCategory">Category:</label>
+				<select id="newCompanyCategory" @bind="newCompany.Category" class="form-control">
+					@foreach (var enumValue in Enum.GetValues(typeof(CategoryDatas))) {
+						<option value="@enumValue">@enumValue</option>
+					}
+				</select>
+			</div>
+			<button class="btn btn-success" @onclick="AddCompanyAsync">Add Company</button>
 		</div>
-		<button class="btn btn-primary" @onclick="GetCompanyData">Search</button>
+	</div>
 
+	<!-- 企業リスト -->
+	<div class="d-flex flex-wrap">
 		@if (_companies == null) {
-			<p><em>Loading...</em></p>
+			<p>Loading...</p>
+		}
+		else if (_companies.Count == 0) {
+			<p>No companies found.</p>
 		}
 		else {
 			<table class="table mt-3">
@@ -37,6 +60,7 @@
 						<th>Category</th>
 						<th>Name</th>
 						<th>CreatedAt</th>
+						<th>Actions</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -46,35 +70,48 @@
 							<td>@company.Category</td>
 							<td>@company.Name</td>
 							<td>@company.CreatedAt</td>
+							<td>
+								<!-- Edit ボタン -->
+								<button class="btn btn-primary" @onclick="() => EditCompanyAsync(company)">Edit</button>
+							</td>
 						</tr>
 					}
 				</tbody>
 			</table>
 		}
 	</div>
-	<div class="col-md-6">
-		<h2>Add New Company</h2>
-		<div class="form-group">
-			<label for="newCompanyName">Name:</label>
-			<input type="text" id="newCompanyName" @bind="newCompany.Name" class="form-control" />
-		</div>
-		<div class="form-group">
-			<label for="newCompanyCategory">Category:</label>
-			<select id="newCompanyCategory" @bind="newCompany.Category" class="form-control">
-				@foreach (var enumValue in Enum.GetValues(typeof(CategoryDatas))) {
-					<option value="@enumValue">@enumValue</option>
-				}
-			</select>
-		</div>
-		<button class="btn btn-success" @onclick="AddCompanyAsync">Add Company</button>
-	</div>
 </div>
+
+<!-- モーダル -->
+@if (selectedCompany != null) {
+	<div class="modal fade show" style="display: block; background: rgba(0, 0, 0, 0.5);">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Edit Company</h5>
+					<button type="button" class="btn-close" @onclick="CloseModal"></button>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label for="editCompanyName">Name:</label>
+						<input type="text" id="editCompanyName" @bind="selectedCompany.Name" class="form-control" />
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" @onclick="CloseModal">Close</button>
+					<button type="button" class="btn btn-primary" @onclick="UpdateCompanyAsync">Save changes</button>
+				</div>
+			</div>
+		</div>
+	</div>
+}
 
 @code {
 	private List<Company> _companies;
 	private string searchName = string.Empty;
 	private CategoryDatas? searchCategory;
 	private Company newCompany = new Company();
+	private Company selectedCompany;
 
 	protected override async Task OnInitializedAsync() {
 		await GetCompanyData();
@@ -106,5 +143,24 @@
 		else {
 			// Handle error
 		}
+	}
+
+	private void EditCompanyAsync(Company company) {
+		selectedCompany = company;
+	}
+
+	private async Task UpdateCompanyAsync() {
+		var response = await Http.PatchAsJsonAsync($"api/companies/{selectedCompany.Category}/{selectedCompany.Id}", selectedCompany);
+		if (response.IsSuccessStatusCode) {
+			await GetCompanyData(); // Fetch updated data
+			selectedCompany = null; // Close the modal
+		}
+		else {
+			// Handle error
+		}
+	}
+
+	private void CloseModal() {
+		selectedCompany = null;
 	}
 }
