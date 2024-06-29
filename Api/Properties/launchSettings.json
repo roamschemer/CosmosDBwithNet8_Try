@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "FunctionApp1": {
+    "Api": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7193",
+      "commandLineArgs": "start --cors *",
       "launchBrowser": false
     }
   }
