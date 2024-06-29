@@ -1,17 +1,10 @@
 using Data;
-using Google.Protobuf.Reflection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Api.Companies
@@ -40,12 +33,10 @@ namespace Api.Companies
 			company.Id = Guid.NewGuid().ToString();
 			company.CreatedAt = DateTime.UtcNow;
 
-			var databaseName = Environment.GetEnvironmentVariable("CosmosDb");
+			var container = _cosmosClient.GetContainer(Environment.GetEnvironmentVariable("CosmosDb"), "companies");
 
-			var container = _cosmosClient.GetContainer(databaseName, "companies");
-
-			await container.CreateItemAsync(company, new PartitionKey(company.Name));
-
+			var response = await container.CreateItemAsync(company, new PartitionKey(company.Name));
+			_logger.LogInformation($"{response.RequestCharge}RU è¡îÔÇµÇ‹ÇµÇΩ");
 			return new OkObjectResult(company);
 		}
 	}
