@@ -2,26 +2,28 @@ using Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Api.Companies
 {
-	public class PostCompanies
+	public class PatchCompanies
 	{
-		private readonly ILogger<GetCompanies> _logger;
+		private readonly ILogger<PatchCompanies> _logger;
 		private readonly CosmosClient _cosmosClient;
 
-		public PostCompanies(ILogger<GetCompanies> logger, CosmosClient cosmosClient) {
+		public PatchCompanies(ILogger<PatchCompanies> logger, CosmosClient cosmosClient) {
 			_logger = logger;
 			_cosmosClient = cosmosClient;
 		}
 
-		[Function(nameof(PostCompanies))]
+		[Function(nameof(PatchCompanies))]
 		public async Task<IActionResult> Run(
-			[HttpTrigger(AuthorizationLevel.Function, "post", Route = "companies")] HttpRequest req) {
+			[HttpTrigger(AuthorizationLevel.Function, "patch", Route = "companies/{id}")] HttpRequest req, string id) {
+
+
 			_logger.LogInformation("C# HTTP trigger function processed a request.");
 
 			string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
@@ -30,12 +32,9 @@ namespace Api.Companies
 				return new BadRequestObjectResult("Invalid request payload.");
 			}
 
-			company.Id = Guid.NewGuid().ToString();
-			company.CreatedAt = DateTime.UtcNow;
-
 			var container = _cosmosClient.GetContainer(Environment.GetEnvironmentVariable("CosmosDb"), "companies");
 
-			var response = await container.CreateItemAsync(company, new PartitionKey((int)company.Category));
+			var response = await container.UpsertItemAsync<Company>(company);
 			_logger.LogInformation($"{response.RequestCharge}RU è¡îÔÇµÇ‹ÇµÇΩ");
 			return new OkObjectResult(company);
 		}
