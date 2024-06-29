@@ -16,22 +16,23 @@ namespace Api.Companies
 	public class GetCompanies
 	{
 		private readonly ILogger<GetCompanies> _logger;
+		private readonly CosmosClient _cosmosClient;
 
-		public GetCompanies(ILogger<GetCompanies> logger) {
+		public GetCompanies(ILogger<GetCompanies> logger, CosmosClient cosmosClient) {
 			_logger = logger;
+			_cosmosClient = cosmosClient;
 		}
 
 		[Function(nameof(GetCompanies))]
 		public async Task<IActionResult> Run(
-			[HttpTrigger(AuthorizationLevel.Function, "get", Route = "companies")] HttpRequest req,
-			[CosmosDBInput(Connection = "CosmosDBConnection")] CosmosClient client) {
+			[HttpTrigger(AuthorizationLevel.Function, "get", Route = "companies")] HttpRequest req) {
 			_logger.LogInformation("C# HTTP trigger function processed a request.");
 
 			var name = req.Query["name"].ToString();
 
 			var databaseName = Environment.GetEnvironmentVariable("CosmosDb");
 
-			var container = client.GetContainer(databaseName, "companies");
+			var container = _cosmosClient.GetContainer(databaseName, "companies");
 
 			IQueryable<Company> queryable = container.GetItemLinqQueryable<Company>()
 				.Where(c => string.IsNullOrEmpty(name) || c.Name.Contains(name))

@@ -18,16 +18,17 @@ namespace Api.Companies
 {
 	public class PostCompanies
 	{
-		private readonly ILogger<PostCompanies> _logger;
+		private readonly ILogger<GetCompanies> _logger;
+		private readonly CosmosClient _cosmosClient;
 
-		public PostCompanies(ILogger<PostCompanies> logger) {
+		public PostCompanies(ILogger<GetCompanies> logger, CosmosClient cosmosClient) {
 			_logger = logger;
+			_cosmosClient = cosmosClient;
 		}
 
 		[Function(nameof(PostCompanies))]
 		public async Task<IActionResult> Run(
-			[HttpTrigger(AuthorizationLevel.Function, "post", Route = "companies")] HttpRequest req,
-			[CosmosDBInput(Connection = "CosmosDBConnection")] CosmosClient client) {
+			[HttpTrigger(AuthorizationLevel.Function, "post", Route = "companies")] HttpRequest req) {
 			_logger.LogInformation("C# HTTP trigger function processed a request.");
 
 			string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
@@ -41,9 +42,9 @@ namespace Api.Companies
 
 			var databaseName = Environment.GetEnvironmentVariable("CosmosDb");
 
-			var container = client.GetContainer(databaseName, "companies");
+			var container = _cosmosClient.GetContainer(databaseName, "companies");
 
-			await container.CreateItemAsync(company, new PartitionKey(company.Category.ToString()));
+			await container.CreateItemAsync(company, new PartitionKey(company.Name));
 
 			return new OkObjectResult(company);
 		}
