@@ -27,21 +27,25 @@ namespace Api.Companies
 			_logger.LogInformation("C# HTTP trigger function processed a request.");
 
 			var container = _cosmosClient.GetContainer(Environment.GetEnvironmentVariable("CosmosDb"), "companies");
-			var response = await container.ReadItemAsync<Company>(id, new PartitionKey(category));
-			_logger.LogInformation($"{response.RequestCharge}RU è¡îÔÇµÇ‹ÇµÇΩ");
 
-			var company = response.Resource;
 			string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 			var companyData = JsonSerializer.Deserialize<Company>(requestBody);
 			if (companyData == null) {
 				return new BadRequestObjectResult("Invalid request payload.");
 			}
 
-			company.Name = companyData.Name;
+			var response = await container.PatchItemAsync<Company>(
+				id,
+				new PartitionKey(category),
+				patchOperations: [
+					PatchOperation.Replace("/name", companyData.Name) // ì¡íËÇÃçÄñ⁄ÇÃÇ›ÇçXêV
+				]
+			);
+			//var response = await container.ReplaceItemAsync(companyData, id, new PartitionKey(category)); Ç‹ÇÈÇ≤Ç∆íuä∑Ç∑ÇÈÇ»ÇÁÇ±ÇÍÇ‡Ç†ÇË
 
-			response = await container.ReplaceItemAsync(company, company.Id, new PartitionKey((int)company.Category));
 			_logger.LogInformation($"{response.RequestCharge}RU è¡îÔÇµÇ‹ÇµÇΩ");
-			return new OkObjectResult(company);
+
+			return new OkObjectResult(response);
 		}
 	}
 }
