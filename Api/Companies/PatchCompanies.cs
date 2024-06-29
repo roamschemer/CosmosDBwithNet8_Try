@@ -39,7 +39,7 @@ namespace Api.Companies
 
 			company.Name = companyData.Name;
 
-			response = await container.UpsertItemAsync<Company>(company);
+			response = await container.ReplaceItemAsync(company, company.Id, new PartitionKey((int)company.Category));
 			_logger.LogInformation($"{response.RequestCharge}RU è¡îÔÇµÇ‹ÇµÇΩ");
 			return new OkObjectResult(company);
 		}
