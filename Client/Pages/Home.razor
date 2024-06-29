@@ -1,6 +1,8 @@
 ﻿@page "/"
 @inject HttpClient Http
 @using Data
+@using System.Reflection
+@using static Data.Company
 
 <PageTitle>Home</PageTitle>
 
@@ -12,6 +14,15 @@
 		<div class="form-group">
 			<label for="name">Name:</label>
 			<input type="text" id="name" @bind="searchName" class="form-control" />
+		</div>
+		<div class="form-group">
+			<label for="category">Category:</label>
+			<select id="category" @bind="searchCategory" class="form-control">
+				<option value="">All</option>
+				@foreach (var enumValue in Enum.GetValues(typeof(CategoryDatas))) {
+					<option value="@enumValue">@enumValue.ToString()</option>
+				}
+			</select>
 		</div>
 		<button class="btn btn-primary" @onclick="GetCompanyData">Search</button>
 
@@ -25,6 +36,7 @@
 						<th>Id</th>
 						<th>Category</th>
 						<th>Name</th>
+						<th>CreatedAt</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -33,6 +45,7 @@
 							<td>@company.Id</td>
 							<td>@company.Category</td>
 							<td>@company.Name</td>
+							<td>@company.CreatedAt</td>
 						</tr>
 					}
 				</tbody>
@@ -48,20 +61,24 @@
 		<div class="form-group">
 			<label for="newCompanyCategory">Category:</label>
 			<select id="newCompanyCategory" @bind="newCompany.Category" class="form-control">
-				<option value="Admin">Admin</option>
-				<option value="User">User</option>
-				<option value="PowerUser">PowerUser</option>
-				<option value="Customer">Customer</option>
+				@foreach (var enumValue in Enum.GetValues(typeof(CategoryDatas))) {
+					<option value="@enumValue">@enumValue</option>
+				}
 			</select>
 		</div>
-		<button class="btn btn-success" @onclick="AddCompany">Add Company</button>
+		<button class="btn btn-success" @onclick="AddCompanyAsync">Add Company</button>
 	</div>
 </div>
 
 @code {
-	private List<Company>? _companies;
+	private List<Company> _companies;
 	private string searchName = string.Empty;
+	private CategoryDatas? searchCategory;
 	private Company newCompany = new Company();
+
+	protected override async Task OnInitializedAsync() {
+		await GetCompanyData();
+	}
 
 	private async Task GetCompanyData() {
 		var query = "api/companies";
@@ -70,7 +87,9 @@
 		if (!string.IsNullOrEmpty(searchName)) {
 			parameters.Add($"name={searchName}");
 		}
-
+		if (searchCategory.HasValue) {
+			parameters.Add($"category={(int)searchCategory}");
+		}
 		if (parameters.Any()) {
 			query += "?" + string.Join("&", parameters);
 		}
@@ -78,15 +97,10 @@
 		_companies = await Http.GetFromJsonAsync<List<Company>>(query);
 	}
 
-	private async Task AddCompany() {
+	private async Task AddCompanyAsync() {
 		var response = await Http.PostAsJsonAsync("api/companies", newCompany);
-
 		if (response.IsSuccessStatusCode) {
-			var addedCompany = await response.Content.ReadFromJsonAsync<Company>();
-			if (_companies == null) {
-				_companies = new List<Company>();
-			}
-			_companies.Add(addedCompany);
+			await GetCompanyData(); // Fetch updated data
 			newCompany = new Company(); // Reset the form
 		}
 		else {

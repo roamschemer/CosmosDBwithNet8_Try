@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static Data.Company;
 
 namespace Api.Companies
 {
@@ -29,6 +30,12 @@ namespace Api.Companies
 			_logger.LogInformation("C# HTTP trigger function processed a request.");
 
 			var name = req.Query["name"].ToString();
+			var category = req.Query["category"].ToString();
+			//CategoryDatas? category = null;
+
+			//if (Enum.TryParse(req.Query["category"].ToString(), out CategoryDatas categoryData)) {
+			//	category = categoryData;
+			//}
 
 			var databaseName = Environment.GetEnvironmentVariable("CosmosDb");
 
@@ -36,6 +43,8 @@ namespace Api.Companies
 
 			IQueryable<Company> queryable = container.GetItemLinqQueryable<Company>()
 				.Where(c => string.IsNullOrEmpty(name) || c.Name.Contains(name))
+				//.Where(c => category == null || c.Category == category)
+				.Where(c => string.IsNullOrEmpty(category) || c.Category.ToString() == category)
 				.OrderByDescending(c => c.CreatedAt);
 
 			var iterator = queryable.ToFeedIterator();
