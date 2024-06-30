@@ -38,7 +38,13 @@ namespace Api.Companies
 				id,
 				new PartitionKey(category),
 				patchOperations: [
-					PatchOperation.Replace("/name", companyData.Name) // 特定の項目のみを更新
+					PatchOperation.Replace("/name", companyData.Name),	// 更新
+					//他にも色々できる。
+					//PatchOperation.Add("/color", "silver"),			// 追加
+					//PatchOperation.Remove("/used"),					// 削除
+					//PatchOperation.Increment("/price", 50.00),		// インクリメント
+					//PatchOperation.Set("/tags", new string[] {}),		// 空の配列を設定
+					//PatchOperation.Add("/tags/-", "featured-bikes")	// 配列の末尾に値を追加
 				]
 			);
 			//var response = await container.ReplaceItemAsync(companyData, id, new PartitionKey(category)); まるごと置換するならこれもあり
