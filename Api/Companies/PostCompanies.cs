@@ -1,34 +1,28 @@
 using Data;
-using Google.Protobuf.Reflection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Api.Companies
 {
 	public class PostCompanies
 	{
-		private readonly ILogger<PostCompanies> _logger;
+		private readonly ILogger<GetCompanies> _logger;
+		private readonly CosmosClient _cosmosClient;
 
-		public PostCompanies(ILogger<PostCompanies> logger) {
+		public PostCompanies(ILogger<GetCompanies> logger, CosmosClient cosmosClient) {
 			_logger = logger;
+			_cosmosClient = cosmosClient;
 		}
 
 		[Function(nameof(PostCompanies))]
 		public async Task<IActionResult> Run(
-			[HttpTrigger(AuthorizationLevel.Function, "post", Route = "companies")] HttpRequest req,
-			[CosmosDBInput(Connection = "CosmosDBConnection")] CosmosClient client) {
-			_logger.LogInformation("C# HTTP trigger function processed a request.");
+			[HttpTrigger(AuthorizationLevel.Function, "post", Route = "companies")] HttpRequest req) {
+			_logger.LogInformation("C# HTTP trigger function processed a post request.");
 
 			string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 			var company = JsonSerializer.Deserialize<Company>(requestBody);
@@ -39,12 +33,10 @@ namespace Api.Companies
 			company.Id = Guid.NewGuid().ToString();
 			company.CreatedAt = DateTime.UtcNow;
 
-			var databaseName = Environment.GetEnvironmentVariable("CosmosDb");
+			var container = _cosmosClient.GetContainer(Environment.GetEnvironmentVariable("CosmosDb"), "companies");
 
-			var container = client.GetContainer(databaseName, "companies");
-
-			await container.CreateItemAsync(company, new PartitionKey(company.Category.ToString()));
-
+			var response = await container.CreateItemAsync(company, new PartitionKey((int)company.Category));
+			_logger.LogInformation($"{response.RequestCharge}RU è¡îÔÇµÇ‹ÇµÇΩ");
 			return new OkObjectResult(company);
 		}
 	}
