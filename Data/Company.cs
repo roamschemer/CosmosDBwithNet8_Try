@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Data
 {
@@ -15,6 +16,7 @@ namespace Data
 		[JsonPropertyName("id")]
 		public string Id { get; set; }
 
+		[Required]
 		[JsonPropertyName("name")]
 		public string Name { get; set; }
 

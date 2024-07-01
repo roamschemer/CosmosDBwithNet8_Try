@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -28,6 +29,13 @@ namespace Api.Companies
 			var company = JsonSerializer.Deserialize<Company>(requestBody);
 			if (company == null) {
 				return new BadRequestObjectResult("Invalid request payload.");
+			}
+
+			var validationResults = new List<ValidationResult>();
+			var validationContext = new ValidationContext(company, null, null);
+
+			if (!Validator.TryValidateObject(company, validationContext, validationResults, true)) {
+				return new BadRequestObjectResult(validationResults);
 			}
 
 			company.Id = Guid.NewGuid().ToString();

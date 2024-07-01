@@ -106,12 +106,22 @@
 	</div>
 }
 
+<!-- ErrorMessage ポップ-->
+@if (errorMessage != null) {
+	<div class="error-popup">
+		<ul>
+			<li>@errorMessage</li>
+		</ul>
+	</div>
+}
+
 @code {
 	private List<Company> _companies;
 	private string searchName = string.Empty;
 	private CategoryDatas? searchCategory;
 	private Company newCompany = new Company();
 	private Company selectedCompany;
+	private string? errorMessage;
 
 	protected override async Task OnInitializedAsync() {
 		await GetCompanyData();
@@ -132,6 +142,9 @@
 		}
 
 		_companies = await Http.GetFromJsonAsync<List<Company>>(query);
+		errorMessage = null;
+
+
 	}
 
 	private async Task AddCompanyAsync() {
@@ -141,7 +154,7 @@
 			newCompany = new Company(); // Reset the form
 		}
 		else {
-			// Handle error
+			errorMessage = await response.Content.ReadAsStringAsync();
 		}
 	}
 
@@ -155,7 +168,8 @@
 			await GetCompanyData(); // Fetch updated data
 		}
 		else {
-			// Handle error
+			errorMessage = await response.Content.ReadAsStringAsync();
+
 		}
 	}
 
@@ -166,7 +180,7 @@
 			selectedCompany = null; // Close the modal
 		}
 		else {
-			// Handle error
+			errorMessage = await response.Content.ReadAsStringAsync();
 		}
 	}
 
