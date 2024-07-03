@@ -1,26 +1,28 @@
+using Api.Validators.Companies;
 using Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace Api.Companies
+namespace Api.HttpTriggers.Companies
 {
-	public class PostCompanies
+	public class PostCompany
 	{
 		private readonly ILogger<GetCompanies> _logger;
 		private readonly CosmosClient _cosmosClient;
+		private readonly PostCompanyValidator _validator;
 
-		public PostCompanies(ILogger<GetCompanies> logger, CosmosClient cosmosClient) {
+		public PostCompany(ILogger<GetCompanies> logger, CosmosClient cosmosClient, PostCompanyValidator validator) {
 			_logger = logger;
 			_cosmosClient = cosmosClient;
+			_validator = validator;
 		}
 
-		[Function(nameof(PostCompanies))]
+		[Function(nameof(PostCompany))]
 		public async Task<IActionResult> Run(
 			[HttpTrigger(AuthorizationLevel.Function, "post", Route = "companies")] HttpRequest req) {
 			_logger.LogInformation("C# HTTP trigger function processed a post request.");
@@ -31,10 +33,9 @@ namespace Api.Companies
 				return new BadRequestObjectResult("Invalid request payload.");
 			}
 
-			var validationResults = new List<ValidationResult>();
-			var validationContext = new ValidationContext(company, null, null);
+			var validationResults = _validator.Validate(company);
 
-			if (!Validator.TryValidateObject(company, validationContext, validationResults, true)) {
+			if (validationResults.Any()) {
 				return new BadRequestObjectResult(validationResults);
 			}
 

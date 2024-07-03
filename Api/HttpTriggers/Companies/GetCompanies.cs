@@ -6,7 +6,7 @@ using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
-namespace Api.Companies
+namespace Api.HttpTriggers.Companies
 {
 	public class GetCompanies
 	{

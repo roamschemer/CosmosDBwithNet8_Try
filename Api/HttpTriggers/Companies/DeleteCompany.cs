@@ -7,19 +7,19 @@ using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace Api.Companies
+namespace Api.HttpTriggers.Companies
 {
-	public class DeleteCompanies
+	public class DeleteCompany
 	{
-		private readonly ILogger<DeleteCompanies> _logger;
+		private readonly ILogger<DeleteCompany> _logger;
 		private readonly CosmosClient _cosmosClient;
 
-		public DeleteCompanies(ILogger<DeleteCompanies> logger, CosmosClient cosmosClient) {
+		public DeleteCompany(ILogger<DeleteCompany> logger, CosmosClient cosmosClient) {
 			_logger = logger;
 			_cosmosClient = cosmosClient;
 		}
 
-		[Function(nameof(DeleteCompanies))]
+		[Function(nameof(DeleteCompany))]
 		public async Task<IActionResult> Run(
 			[HttpTrigger(AuthorizationLevel.Function, "delete", Route = "companies/{category:int}/{id}")] HttpRequest req, int category, string id) {
 

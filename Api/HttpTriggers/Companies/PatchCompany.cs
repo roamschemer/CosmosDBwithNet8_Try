@@ -7,19 +7,19 @@ using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace Api.Companies
+namespace Api.HttpTriggers.Companies
 {
-	public class PatchCompanies
+	public class PatchCompany
 	{
-		private readonly ILogger<PatchCompanies> _logger;
+		private readonly ILogger<PatchCompany> _logger;
 		private readonly CosmosClient _cosmosClient;
 
-		public PatchCompanies(ILogger<PatchCompanies> logger, CosmosClient cosmosClient) {
+		public PatchCompany(ILogger<PatchCompany> logger, CosmosClient cosmosClient) {
 			_logger = logger;
 			_cosmosClient = cosmosClient;
 		}
 
-		[Function(nameof(PatchCompanies))]
+		[Function(nameof(PatchCompany))]
 		public async Task<IActionResult> Run(
 			[HttpTrigger(AuthorizationLevel.Function, "patch", Route = "companies/{category:int}/{id}")] HttpRequest req, int category, string id) {
 

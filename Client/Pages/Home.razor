@@ -44,6 +44,16 @@
 		</div>
 	</div>
 
+
+	<!-- ErrorMessage -->
+	@if (errorMessage != null) {
+		<div class="error-popup">
+			<ul>
+				<li>@errorMessage</li>
+			</ul>
+		</div>
+	}
+
 	<!-- 企業リスト -->
 	<div class="d-flex flex-wrap">
 		@if (_companies == null) {
@@ -103,15 +113,6 @@
 				</div>
 			</div>
 		</div>
-	</div>
-}
-
-<!-- ErrorMessage ポップ-->
-@if (errorMessage != null) {
-	<div class="error-popup">
-		<ul>
-			<li>@errorMessage</li>
-		</ul>
 	</div>
 }
 

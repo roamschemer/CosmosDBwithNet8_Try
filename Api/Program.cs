@@ -1,3 +1,4 @@
+using Api.Validators.Companies;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Azure.Functions.Worker;
@@ -18,7 +19,7 @@ var host = new HostBuilder()
 				.Build();
 			return client;
 		});
-
+		services.AddSingleton<PostCompanyValidator>();
 	})
 	.Build();
 
