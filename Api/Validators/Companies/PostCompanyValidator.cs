@@ -5,7 +5,7 @@ namespace Api.Validators.Companies
 {
 	public class PostCompanyValidator
 	{
-		public List<ValidationResult> Validate(Company company) {
+		public IReadOnlyList<ValidationResult> Validate(Company company) {
 			var results = new List<ValidationResult>();
 
 
