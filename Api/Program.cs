@@ -5,22 +5,34 @@ using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 var host = new HostBuilder()
 	.ConfigureFunctionsWebApplication()
-	.ConfigureServices(services => {
+	.ConfigureServices((Action<IServiceCollection>)(services => {
 		services.AddApplicationInsightsTelemetryWorkerService();
 		services.ConfigureFunctionsApplicationInsights();
-		var connectionString = Environment.GetEnvironmentVariable("CosmosDBConnection");
-		var client = new CosmosClientBuilder(connectionString)
-			.WithSerializerOptions(new() {
-				PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
-			})
-			.Build();
-		services.AddSingleton(provider => new CompanyRepository(client.GetContainer(Environment.GetEnvironmentVariable("CosmosDb"), "companies")));
-		//Validator
-		services.AddSingleton<PostCompanyValidator>();
-	})
+		RepositoryInjection(services);
+		ValidatorsInjection(services);
+	}))
 	.Build();
 
 host.Run();
+
+static void RepositoryInjection(IServiceCollection services) {
+	var connectionString = Environment.GetEnvironmentVariable("CosmosDBConnection");
+	var client = new CosmosClientBuilder(connectionString)
+		.WithSerializerOptions(new() {
+			PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
+		})
+		.Build();
+	var databaseId = Environment.GetEnvironmentVariable("CosmosDb");
+	services.AddSingleton(provider => new CompanyRepository(
+		provider.GetRequiredService<ILogger<CompanyRepository>>(),
+		client.GetContainer(databaseId, "companies"))
+	);
+}
+
+static void ValidatorsInjection(IServiceCollection services) {
+	services.AddSingleton<PostCompanyValidator>();
+}

@@ -1,16 +1,19 @@
 ﻿using Data;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace Api.Repositories
 {
 
 	public class CompanyRepository
 	{
+		private readonly ILogger<CompanyRepository> _logger;
 		private readonly Container _container;
 
-		public CompanyRepository(Container container) {
+		public CompanyRepository(ILogger<CompanyRepository> logger, Container container) {
 			_container = container;
+			_logger = logger;
 		}
 
 		public async Task<List<Company>> SelectConditionsAsync(Dictionary<string, string> conditions) {
@@ -27,6 +30,7 @@ namespace Api.Repositories
 			while (iterator.HasMoreResults) {
 				var response = await iterator.ReadNextAsync();
 				companies.AddRange(response);
+				_logger.LogInformation($"{response.RequestCharge}RU 消費しました");
 			}
 			return companies;
 		}
