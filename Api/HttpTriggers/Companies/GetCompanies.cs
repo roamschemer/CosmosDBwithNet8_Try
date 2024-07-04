@@ -22,31 +22,14 @@ namespace Api.HttpTriggers.Companies
 		[Function(nameof(GetCompanies))]
 		public async Task<IActionResult> Run(
 			[HttpTrigger(AuthorizationLevel.Function, "get", Route = "companies")] HttpRequest req) {
+
 			_logger.LogInformation("C# HTTP trigger function processed a get request.");
 
-			var conditions = new Dictionary<string, string> {
+			var companies = await _companyRepository.SelectConditionsAsync(new(){
 				{ "name", req.Query["name"].ToString() },
 				{ "category", req.Query["category"].ToString() }
-			};
+			});
 
-			var companies = _companyRepository.SelectConditionsAsync(conditions);
-
-			//var name = req.Query["name"].ToString();
-			//var category = req.Query["category"].ToString();
-
-			//var container = _cosmosClient.GetContainer(Environment.GetEnvironmentVariable("CosmosDb"), "companies");
-			//var queryable = container.GetItemLinqQueryable<Company>()
-			//	.Where(c => string.IsNullOrEmpty(name) || c.Name.Contains(name))
-			//	.Where(c => string.IsNullOrEmpty(category) || c.Category.ToString() == category)
-			//	.OrderByDescending(c => c.CreatedAt);
-			//var iterator = queryable.ToFeedIterator();
-
-			//var companies = new List<Company>();
-			//while (iterator.HasMoreResults) {
-			//	var response = await iterator.ReadNextAsync();
-			//	_logger.LogInformation($"{response.RequestCharge}RU è¡îÔÇµÇ‹ÇµÇΩ");
-			//	companies.AddRange(response);
-			//}
 			return new OkObjectResult(companies);
 		}
 	}

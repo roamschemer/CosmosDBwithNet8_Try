@@ -11,12 +11,10 @@ namespace Test.Api.Validators.Companies
 	[TestClass]
 	public class PostCompanyValidatorTest
 	{
-		private PostCompanyValidator _validator;
+		private PostCompanyValidator _validator = new();
 
 		[TestInitialize]
 		public void Setup() {
-			var client = new Mock<CosmosClient>();
-			_validator = new(client.Object);
 		}
 
 		[TestMethod]

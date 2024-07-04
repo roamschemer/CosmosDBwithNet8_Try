@@ -13,7 +13,7 @@ namespace Api.Repositories
 			_container = container;
 		}
 
-		public async Task<IReadOnlyList<Company>> SelectConditionsAsync(Dictionary<string, string> conditions) {
+		public async Task<List<Company>> SelectConditionsAsync(Dictionary<string, string> conditions) {
 
 			var name = conditions.ContainsKey("name") ? conditions["name"] : null;
 			var category = conditions.ContainsKey("category") ? conditions["category"] : null;
@@ -30,5 +30,7 @@ namespace Api.Repositories
 			}
 			return companies;
 		}
+
+
 	}
 }
