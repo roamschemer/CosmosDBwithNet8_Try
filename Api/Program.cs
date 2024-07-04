@@ -1,3 +1,4 @@
+using Api.Repositories;
 using Api.Validators.Companies;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Fluent;
@@ -10,15 +11,14 @@ var host = new HostBuilder()
 	.ConfigureServices(services => {
 		services.AddApplicationInsightsTelemetryWorkerService();
 		services.ConfigureFunctionsApplicationInsights();
-		services.AddSingleton(provider => {
-			var connectionString = Environment.GetEnvironmentVariable("CosmosDBConnection");
-			var client = new CosmosClientBuilder(connectionString)
-				.WithSerializerOptions(new() {
-					PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
-				})
-				.Build();
-			return client;
-		});
+		var connectionString = Environment.GetEnvironmentVariable("CosmosDBConnection");
+		var client = new CosmosClientBuilder(connectionString)
+			.WithSerializerOptions(new() {
+				PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
+			})
+			.Build();
+		services.AddSingleton(provider => new CompanyRepository(client.GetContainer(Environment.GetEnvironmentVariable("CosmosDb"), "companies")));
+		//Validator
 		services.AddSingleton<PostCompanyValidator>();
 	})
 	.Build();

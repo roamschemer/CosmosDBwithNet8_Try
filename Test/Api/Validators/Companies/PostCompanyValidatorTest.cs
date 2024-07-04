@@ -1,16 +1,22 @@
+using Api.HttpTriggers.Companies;
 using Api.Validators.Companies;
 using Data;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Fluent;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace Test.Api.Validators.Companies
 {
 	[TestClass]
 	public class PostCompanyValidatorTest
 	{
-		private PostCompanyValidator _validator = new();
+		private PostCompanyValidator _validator;
 
 		[TestInitialize]
 		public void Setup() {
-
+			var client = new Mock<CosmosClient>();
+			_validator = new(client.Object);
 		}
 
 		[TestMethod]

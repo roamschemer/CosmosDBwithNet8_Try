@@ -1,10 +1,14 @@
-﻿using Data;
+﻿using Api.HttpTriggers.Companies;
+using Data;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
 
 namespace Api.Validators.Companies
 {
 	public class PostCompanyValidator
 	{
+
 		public IReadOnlyList<ValidationResult> Validate(Company company) {
 			var results = new List<ValidationResult>();
 
