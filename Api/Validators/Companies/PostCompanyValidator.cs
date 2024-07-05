@@ -7,7 +7,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Api.Validators.Companies
 {
-	public class PostCompanyValidator
+	public interface IPostCompanyValidator
+	{
+		public IReadOnlyList<ValidationResult> Validate(Company company);
+	}
+
+	public class PostCompanyValidator : IPostCompanyValidator
 	{
 		private readonly ILogger<PostCompanyValidator> _logger;
 		private readonly ICompanyRepository _companyRepository;

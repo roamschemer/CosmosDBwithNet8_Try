@@ -34,5 +34,5 @@ static void RepositoryInjection(IServiceCollection services) {
 }
 
 static void ValidatorsInjection(IServiceCollection services) {
-	services.AddSingleton<PostCompanyValidator>();
+	services.AddSingleton<IPostCompanyValidator, PostCompanyValidator>();
 }

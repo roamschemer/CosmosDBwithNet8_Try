@@ -13,9 +13,9 @@ namespace Api.HttpTriggers.Companies
 	public class PostCompany
 	{
 		private readonly ILogger<GetCompanies> _logger;
-		private readonly PostCompanyValidator _validator;
+		private readonly IPostCompanyValidator _validator;
 
-		public PostCompany(ILogger<GetCompanies> logger, PostCompanyValidator validator) {
+		public PostCompany(ILogger<GetCompanies> logger, IPostCompanyValidator validator) {
 			_logger = logger;
 			_validator = validator;
 		}
