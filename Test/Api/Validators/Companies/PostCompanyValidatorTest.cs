@@ -12,11 +12,11 @@ namespace Test.Api.Validators.Companies
 	[TestClass]
 	public class PostCompanyValidatorTest
 	{
-		private PostCompanyValidator _validator;
+		private IPostCompanyValidator _validator;
 
 		[TestInitialize]
 		public void Setup() {
-			var mockLogger = new Mock<ILogger<PostCompanyValidator>>();
+			var mockLogger = new Mock<ILogger<IPostCompanyValidator>>();
 			var mockCosmosClient = new Mock<ICompanyRepository>();
 			_validator = new PostCompanyValidator(mockLogger.Object, mockCosmosClient.Object);
 		}

@@ -12,10 +12,10 @@ namespace Api.Repositories
 
 	public class CompanyRepository : ICompanyRepository
 	{
-		private readonly ILogger<CompanyRepository> _logger;
+		private readonly ILogger<ICompanyRepository> _logger;
 		private readonly Container _container;
 
-		public CompanyRepository(ILogger<CompanyRepository> logger, Container container) {
+		public CompanyRepository(ILogger<ICompanyRepository> logger, Container container) {
 			_logger = logger;
 			_container = container;
 		}

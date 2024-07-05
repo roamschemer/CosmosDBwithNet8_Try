@@ -14,10 +14,10 @@ namespace Api.Validators.Companies
 
 	public class PostCompanyValidator : IPostCompanyValidator
 	{
-		private readonly ILogger<PostCompanyValidator> _logger;
+		private readonly ILogger<IPostCompanyValidator> _logger;
 		private readonly ICompanyRepository _companyRepository;
 
-		public PostCompanyValidator(ILogger<PostCompanyValidator> logger, ICompanyRepository companyRepository) {
+		public PostCompanyValidator(ILogger<IPostCompanyValidator> logger, ICompanyRepository companyRepository) {
 			_logger = logger;
 			_companyRepository = companyRepository;
 		}
