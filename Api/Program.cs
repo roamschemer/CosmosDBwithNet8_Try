@@ -27,7 +27,7 @@ static void RepositoryInjection(IServiceCollection services) {
 		})
 		.Build();
 	var databaseId = Environment.GetEnvironmentVariable("CosmosDb");
-	services.AddSingleton(provider => new CompanyRepository(
+	services.AddSingleton<ICompanyRepository>(provider => new CompanyRepository(
 		provider.GetRequiredService<ILogger<CompanyRepository>>(),
 		client.GetContainer(databaseId, "companies"))
 	);

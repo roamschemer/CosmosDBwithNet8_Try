@@ -5,15 +5,19 @@ using Microsoft.Extensions.Logging;
 
 namespace Api.Repositories
 {
+	public interface ICompanyRepository
+	{
+		public Task<List<Company>> SelectConditionsAsync(Dictionary<string, string> conditions);
+	}
 
-	public class CompanyRepository
+	public class CompanyRepository : ICompanyRepository
 	{
 		private readonly ILogger<CompanyRepository> _logger;
 		private readonly Container _container;
 
 		public CompanyRepository(ILogger<CompanyRepository> logger, Container container) {
-			_container = container;
 			_logger = logger;
+			_container = container;
 		}
 
 		public async Task<List<Company>> SelectConditionsAsync(Dictionary<string, string> conditions) {

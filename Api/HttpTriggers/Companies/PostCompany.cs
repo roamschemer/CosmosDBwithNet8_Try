@@ -13,12 +13,10 @@ namespace Api.HttpTriggers.Companies
 	public class PostCompany
 	{
 		private readonly ILogger<GetCompanies> _logger;
-		private readonly CosmosClient _cosmosClient;
 		private readonly PostCompanyValidator _validator;
 
-		public PostCompany(ILogger<GetCompanies> logger, CosmosClient cosmosClient, PostCompanyValidator validator) {
+		public PostCompany(ILogger<GetCompanies> logger, PostCompanyValidator validator) {
 			_logger = logger;
-			_cosmosClient = cosmosClient;
 			_validator = validator;
 		}
 
@@ -42,10 +40,10 @@ namespace Api.HttpTriggers.Companies
 			company.Id = Guid.NewGuid().ToString();
 			company.CreatedAt = DateTime.UtcNow;
 
-			var container = _cosmosClient.GetContainer(Environment.GetEnvironmentVariable("CosmosDb"), "companies");
+			//var container = _cosmosClient.GetContainer(Environment.GetEnvironmentVariable("CosmosDb"), "companies");
 
-			var response = await container.CreateItemAsync(company, new PartitionKey((int)company.Category));
-			_logger.LogInformation($"{response.RequestCharge}RU è¡îÔÇµÇ‹ÇµÇΩ");
+			//var response = await container.CreateItemAsync(company, new PartitionKey((int)company.Category));
+			//_logger.LogInformation($"{response.RequestCharge}RU è¡îÔÇµÇ‹ÇµÇΩ");
 			return new OkObjectResult(company);
 		}
 	}

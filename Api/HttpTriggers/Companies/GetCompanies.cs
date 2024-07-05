@@ -12,9 +12,9 @@ namespace Api.HttpTriggers.Companies
 	public class GetCompanies
 	{
 		private readonly ILogger<GetCompanies> _logger;
-		private readonly CompanyRepository _companyRepository;
+		private readonly ICompanyRepository _companyRepository;
 
-		public GetCompanies(ILogger<GetCompanies> logger, CompanyRepository companyRepository) {
+		public GetCompanies(ILogger<GetCompanies> logger, ICompanyRepository companyRepository) {
 			_logger = logger;
 			_companyRepository = companyRepository;
 		}

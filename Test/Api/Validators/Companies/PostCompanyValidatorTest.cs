@@ -1,4 +1,5 @@
 using Api.HttpTriggers.Companies;
+using Api.Repositories;
 using Api.Validators.Companies;
 using Data;
 using Microsoft.Azure.Cosmos;
@@ -11,10 +12,13 @@ namespace Test.Api.Validators.Companies
 	[TestClass]
 	public class PostCompanyValidatorTest
 	{
-		private PostCompanyValidator _validator = new();
+		private PostCompanyValidator _validator;
 
 		[TestInitialize]
 		public void Setup() {
+			var mockLogger = new Mock<ILogger<PostCompanyValidator>>();
+			var mockCosmosClient = new Mock<ICompanyRepository>();
+			_validator = new PostCompanyValidator(mockLogger.Object, mockCosmosClient.Object);
 		}
 
 		[TestMethod]
