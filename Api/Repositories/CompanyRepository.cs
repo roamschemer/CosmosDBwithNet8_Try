@@ -8,6 +8,7 @@ namespace Api.Repositories
 	public interface ICompanyRepository
 	{
 		public Task<List<Company>> SelectConditionsAsync(Dictionary<string, string> conditions);
+		public Task<Company> Delete(string id, int category);
 	}
 
 	public class CompanyRepository : ICompanyRepository
@@ -39,6 +40,11 @@ namespace Api.Repositories
 			return companies;
 		}
 
+		public async Task<Company> Delete(string id, int category) {
+			var response = await _container.DeleteItemAsync<Company>(id, new PartitionKey(category));
+			_logger.LogInformation($"{response.RequestCharge}RU 消費しました");
+			return response;
+		}
 
 	}
 }
