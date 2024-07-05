@@ -1,3 +1,4 @@
+using Api.Repositories;
 using Api.Validators.Companies;
 using Data;
 using Microsoft.AspNetCore.Http;
@@ -14,10 +15,12 @@ namespace Api.HttpTriggers.Companies
 	{
 		private readonly ILogger<GetCompanies> _logger;
 		private readonly IPostCompanyValidator _validator;
+		private readonly ICompanyRepository _companyRepository;
 
-		public PostCompany(ILogger<GetCompanies> logger, IPostCompanyValidator validator) {
+		public PostCompany(ILogger<GetCompanies> logger, IPostCompanyValidator validator, ICompanyRepository companyRepository) {
 			_logger = logger;
 			_validator = validator;
+			_companyRepository = companyRepository;
 		}
 
 		[Function(nameof(PostCompany))]
@@ -40,10 +43,7 @@ namespace Api.HttpTriggers.Companies
 			company.Id = Guid.NewGuid().ToString();
 			company.CreatedAt = DateTime.UtcNow;
 
-			//var container = _cosmosClient.GetContainer(Environment.GetEnvironmentVariable("CosmosDb"), "companies");
-
-			//var response = await container.CreateItemAsync(company, new PartitionKey((int)company.Category));
-			//_logger.LogInformation($"{response.RequestCharge}RU è¡îÔÇµÇ‹ÇµÇΩ");
+			var response = await _companyRepository.Post(company);
 			return new OkObjectResult(company);
 		}
 	}
