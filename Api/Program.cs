@@ -12,14 +12,14 @@ var host = new HostBuilder()
 	.ConfigureServices((Action<IServiceCollection>)(services => {
 		services.AddApplicationInsightsTelemetryWorkerService();
 		services.ConfigureFunctionsApplicationInsights();
-		RepositoryInjection(services);
-		ValidatorsInjection(services);
+		ConfigureRepositories(services);
+		ConfigureValidators(services);
 	}))
 	.Build();
 
 host.Run();
 
-static void RepositoryInjection(IServiceCollection services) {
+static void ConfigureRepositories(IServiceCollection services) {
 	var connectionString = Environment.GetEnvironmentVariable("CosmosDBConnection");
 	var client = new CosmosClientBuilder(connectionString)
 		.WithSerializerOptions(new() {
@@ -33,6 +33,6 @@ static void RepositoryInjection(IServiceCollection services) {
 	);
 }
 
-static void ValidatorsInjection(IServiceCollection services) {
+static void ConfigureValidators(IServiceCollection services) {
 	services.AddSingleton<IPostCompanyValidator, PostCompanyValidator>();
 }
