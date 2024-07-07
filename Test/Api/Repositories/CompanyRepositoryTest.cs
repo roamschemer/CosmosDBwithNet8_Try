@@ -21,17 +21,7 @@ namespace Test.Api.Repositories
 			var mockLogger = new Mock<ILogger<ICompanyRepository>>();
 			var connectionString = TestContext?.Properties["CosmosDBConnection"]?.ToString();
 			var databaseId = TestContext?.Properties["CosmosDb"]?.ToString();
-			var client = new CosmosClientBuilder(connectionString)
-				.WithSerializerOptions(new() {
-					PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
-				})
-				.Build();
-			var databaseResponse = await client.CreateDatabaseIfNotExistsAsync(databaseId);
-			if (databaseResponse.StatusCode != System.Net.HttpStatusCode.Created) {
-				await client.GetDatabase(databaseId).DeleteAsync();
-			}
-			await client.CreateDatabaseIfNotExistsAsync(databaseId);
-			var database = (Database)await client.CreateDatabaseIfNotExistsAsync(databaseId);
+			var database = await DataBaseUtil.CreateCleanDatabase(connectionString, databaseId);
 			_container = await database.CreateContainerIfNotExistsAsync("companies", "/category");
 			_repository = new CompanyRepository(mockLogger.Object, _container);
 		}
