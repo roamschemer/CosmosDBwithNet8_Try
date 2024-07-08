@@ -5,6 +5,12 @@ namespace Api.Utils
 {
 	public class CosmosDbInitializer
 	{
+		public enum ThroughputMode
+		{
+			AutoScale,
+			Manual,
+		}
+
 		private readonly Database _database;
 
 		/// <summary>
@@ -23,15 +29,20 @@ namespace Api.Utils
 		}
 
 		/// <summary>
-		/// コンテナを取得または作成します
+		/// コンテナを取得または作成します。mode などの設定は作成時のみ反映されます。
 		/// </summary>
 		/// <param name="containerId">コンテナID</param>
 		/// <param name="partitionKeyPath">/から始まるパーティションキー</param>
+		/// <param name="mode">スループットのモード</param>
+		/// <param name="maxThroughput">最大スループット 未指定の場合最小で作成される</param>
 		/// <param name="isCleanUp">初期化する？</param>
 		/// <returns>コンテナ</returns>
-		public async Task<Container> GetContainerAsync(string containerId, string partitionKeyPath, bool isCleanUp = false) {
-			//var throughputProperties = ThroughputProperties.CreateAutoscaleThroughput(autoscaleMaxThroughput: 1000); // オートスケールの場合
-			var throughputProperties = ThroughputProperties.CreateManualThroughput(400); // 固定の場合
+		public async Task<Container> GetContainerAsync(string containerId, string partitionKeyPath, ThroughputMode mode = ThroughputMode.Manual, int? maxThroughput = null, bool isCleanUp = false) {
+			var throughputProperties = mode switch {
+				ThroughputMode.AutoScale => ThroughputProperties.CreateAutoscaleThroughput(maxThroughput ?? 1000),
+				ThroughputMode.Manual => ThroughputProperties.CreateManualThroughput(maxThroughput ?? 400),
+				_ => throw new ArgumentOutOfRangeException(nameof(mode), $"不正なモード mode: {mode}")
+			};
 			var containerResponse = await _database.CreateContainerIfNotExistsAsync(new ContainerProperties(containerId, partitionKeyPath), throughputProperties);
 			if (isCleanUp && containerResponse.StatusCode != System.Net.HttpStatusCode.Created) {
 				await containerResponse.Container.DeleteContainerAsync();

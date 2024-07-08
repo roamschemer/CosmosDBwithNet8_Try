@@ -25,7 +25,7 @@ namespace Test.Api.Repositories
 			var dbInitializer = new CosmosDbInitializer(connectionString, databaseId);
 			var containerId = "companies";
 			var partitionKeyPath = "/" + "category";
-			_container = await dbInitializer.GetContainerAsync(containerId, partitionKeyPath, true);
+			_container = await dbInitializer.GetContainerAsync(containerId, partitionKeyPath, isCleanUp: true);
 			_repository = new CompanyRepository(mockLogger.Object, _container);
 		}
 
