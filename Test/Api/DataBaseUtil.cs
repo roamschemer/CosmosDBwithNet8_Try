@@ -1,29 +1,27 @@
 ﻿using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Azure.Cosmos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Test.Api
 {
 	public static class DataBaseUtil
 	{
 
-		public static async Task<Database> CreateCleanDatabase(string? connectionString, string? databaseId) {
+		public static async Task<Database> CreateDatabase(string? connectionString, string? databaseId) {
 			var client = new CosmosClientBuilder(connectionString)
 				.WithSerializerOptions(new() {
 					PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
 				})
 				.Build();
-			var databaseResponse = await client.CreateDatabaseIfNotExistsAsync(databaseId);
-			if (databaseResponse.StatusCode != System.Net.HttpStatusCode.Created) {
-				await client.GetDatabase(databaseId).DeleteAsync();
+			return await client.CreateDatabaseIfNotExistsAsync(databaseId);
+		}
+
+		public static async Task<Container> CreateCleanContainer(Database database, string containerId, string partitionKeyPath) {
+			var containerResponse = await database.CreateContainerIfNotExistsAsync(containerId, partitionKeyPath);
+			if (containerResponse.StatusCode != System.Net.HttpStatusCode.Created) {
+				await containerResponse.Container.DeleteContainerAsync();
+				containerResponse = await database.CreateContainerAsync(containerId, partitionKeyPath);
 			}
-			await client.CreateDatabaseIfNotExistsAsync(databaseId);
-			var database = (Database)await client.CreateDatabaseIfNotExistsAsync(databaseId);
-			return database;
+			return containerResponse.Container;
 		}
 	}
 }

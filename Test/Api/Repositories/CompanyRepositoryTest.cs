@@ -21,8 +21,11 @@ namespace Test.Api.Repositories
 			var mockLogger = new Mock<ILogger<ICompanyRepository>>();
 			var connectionString = TestContext?.Properties["CosmosDBConnection"]?.ToString();
 			var databaseId = TestContext?.Properties["CosmosDb"]?.ToString();
-			var database = await DataBaseUtil.CreateCleanDatabase(connectionString, databaseId);
-			_container = await database.CreateContainerIfNotExistsAsync("companies", "/category");
+			var database = await DataBaseUtil.CreateDatabase(connectionString, databaseId);
+
+			var containerId = "companies";
+			var partitionKeyPath = "/category";
+			_container = await DataBaseUtil.CreateCleanContainer(database, containerId, partitionKeyPath);
 			_repository = new CompanyRepository(mockLogger.Object, _container);
 		}
 
