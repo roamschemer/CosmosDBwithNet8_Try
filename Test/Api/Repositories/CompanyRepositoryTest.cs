@@ -3,9 +3,9 @@ using Api.Utils;
 using Api.Validators.Companies;
 using Data;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Test.Factories;
 
 namespace Test.Api.Repositories
 {
@@ -31,17 +31,11 @@ namespace Test.Api.Repositories
 
 		[TestMethod]
 		public async Task SelectConditionsAsync() {
-			// テストデータ挿入
-			var testCompany = new Company {
-				Id = Guid.NewGuid().ToString(),
-				Name = "TestCompany",
-				Category = Company.CategoryDatas.Admin,
-				CreatedAt = DateTime.UtcNow
-			};
-			await _container.CreateItemAsync(testCompany, new PartitionKey((int)testCompany.Category));
+			var testCompanies = CompanyFactory.Generate(10);
+			await Task.WhenAll(testCompanies.Select(company => _container.CreateItemAsync(company, new PartitionKey((int)company.Category))));
 
 			// 実行
-			var companies = await _repository.SelectConditionsAsync(new());
+			var companies = await _repository.SelectConditionsAsync(new() { });
 		}
 
 	}
