@@ -30,10 +30,12 @@ namespace Api.Utils
 		/// <param name="isCleanUp">初期化する？</param>
 		/// <returns>コンテナ</returns>
 		public async Task<Container> GetContainerAsync(string containerId, string partitionKeyPath, bool isCleanUp = false) {
-			var containerResponse = await _database.CreateContainerIfNotExistsAsync(containerId, partitionKeyPath);
+			//var throughputProperties = ThroughputProperties.CreateAutoscaleThroughput(autoscaleMaxThroughput: 1000); // オートスケールの場合
+			var throughputProperties = ThroughputProperties.CreateManualThroughput(400); // 固定の場合
+			var containerResponse = await _database.CreateContainerIfNotExistsAsync(new ContainerProperties(containerId, partitionKeyPath), throughputProperties);
 			if (isCleanUp && containerResponse.StatusCode != System.Net.HttpStatusCode.Created) {
 				await containerResponse.Container.DeleteContainerAsync();
-				containerResponse = await _database.CreateContainerAsync(containerId, partitionKeyPath);
+				containerResponse = await _database.CreateContainerAsync(new ContainerProperties(containerId, partitionKeyPath), throughputProperties);
 			}
 			return containerResponse.Container;
 		}
