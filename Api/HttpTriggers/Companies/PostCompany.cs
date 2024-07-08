@@ -42,7 +42,7 @@ namespace Api.HttpTriggers.Companies
 			company.Id = Guid.NewGuid().ToString();
 			company.CreatedAt = DateTime.UtcNow;
 
-			var response = await _companyRepository.Post(company);
+			var response = await _companyRepository.Create(company);
 			return new OkObjectResult(company);
 		}
 	}

@@ -9,7 +9,7 @@ namespace Api.Repositories
 	{
 		public Task<List<Company>> SelectConditionsAsync(Dictionary<string, string> conditions);
 		public Task<Company> Delete(string id, int category);
-		public Task<Company> Post(Company company);
+		public Task<Company> Create(Company company);
 		public Task<Company> Patch(Company company, string id, int category);
 	}
 
@@ -48,7 +48,7 @@ namespace Api.Repositories
 			return response;
 		}
 
-		public async Task<Company> Post(Company company) {
+		public async Task<Company> Create(Company company) {
 			var response = await _container.CreateItemAsync(company, new PartitionKey((int)company.Category));
 			_logger.LogInformation($"{response.RequestCharge}RU 消費しました");
 			return response;
