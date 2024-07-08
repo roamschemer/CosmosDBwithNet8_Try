@@ -11,21 +11,20 @@ namespace Test.Api.Repositories
 	[TestClass]
 	public class CompanyRepositoryTest
 	{
-		public TestContext? TestContext { get; set; }
-		private IPostCompanyValidator? _validator;
-		private CompanyRepository? _repository;
-		private Container? _container;
+		public TestContext TestContext { get; set; }
+		private IPostCompanyValidator _validator;
+		private CompanyRepository _repository;
+		private Container _container;
 
 		[TestInitialize]
 		public async Task Setup() {
 			var mockLogger = new Mock<ILogger<ICompanyRepository>>();
-			var connectionString = TestContext?.Properties["CosmosDBConnection"]?.ToString();
-			var databaseId = TestContext?.Properties["CosmosDb"]?.ToString();
-			var database = await DataBaseUtil.CreateDatabase(connectionString, databaseId);
-
+			var connectionString = TestContext.Properties["CosmosDBConnection"]?.ToString();
+			var databaseId = TestContext.Properties["CosmosDb"]?.ToString();
+			var dbInitializer = new CosmosDbInitializer(connectionString, databaseId);
 			var containerId = "companies";
-			var partitionKeyPath = "/category";
-			_container = await DataBaseUtil.CreateCleanContainer(database, containerId, partitionKeyPath);
+			var partitionKeyPath = "/" + "category";
+			_container = await dbInitializer.CreateCleanContainer(containerId, partitionKeyPath);
 			_repository = new CompanyRepository(mockLogger.Object, _container);
 		}
 
