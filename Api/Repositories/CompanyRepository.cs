@@ -2,6 +2,7 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel.Design;
 
 namespace Api.Repositories
 {
@@ -10,7 +11,7 @@ namespace Api.Repositories
 		public Task<List<Company>> SelectConditionsAsync(Dictionary<string, string> conditions);
 		public Task<Company> DeleteAsync(string id, int category);
 		public Task<Company> CreateAsync(Company company);
-		public Task<Company> PatchAsync(Company company, string id, int category);
+		public Task<Company> PatchAsync(Company company);
 	}
 
 	public class CompanyRepository : ICompanyRepository
@@ -63,10 +64,10 @@ namespace Api.Repositories
 			return response;
 		}
 
-		public async Task<Company> PatchAsync(Company company, string id, int category) {
+		public async Task<Company> PatchAsync(Company company) {
 			var response = await _container.PatchItemAsync<Company>(
-				id,
-				new PartitionKey(category),
+				company.Id,
+				new PartitionKey((int)company.Category),
 				patchOperations: [
 					PatchOperation.Replace("/name", company.Name),	// 更新
 					//他にも色々できる。

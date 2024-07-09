@@ -21,14 +21,14 @@ namespace Api.HttpTriggers.Companies
 
 		[Function(nameof(PatchCompany))]
 		public async Task<IActionResult> Run(
-			[HttpTrigger(AuthorizationLevel.Function, "patch", Route = "companies/{category:int}/{id}")] HttpRequest req, int category, string id) {
+			[HttpTrigger(AuthorizationLevel.Function, "patch", Route = "companies")] HttpRequest req) {
 			_logger.LogInformation("C# HTTP trigger function processed a patch request.");
 			string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 			var companyData = JsonSerializer.Deserialize<Company>(requestBody);
 			if (companyData == null) {
 				return new BadRequestObjectResult("Invalid request payload.");
 			}
-			var response = await _companyRepository.PatchAsync(companyData, id, category);
+			var response = await _companyRepository.PatchAsync(companyData);
 			return new OkObjectResult(response);
 		}
 	}

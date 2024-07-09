@@ -175,7 +175,7 @@
 	}
 
 	private async Task UpdateCompanyAsync() {
-		var response = await Http.PatchAsJsonAsync($"api/companies/{(int)selectedCompany.Category}/{selectedCompany.Id}", selectedCompany);
+		var response = await Http.PatchAsJsonAsync($"api/companies", selectedCompany);
 		if (response.IsSuccessStatusCode) {
 			await GetCompanyData(); // Fetch updated data
 			selectedCompany = null; // Close the modal

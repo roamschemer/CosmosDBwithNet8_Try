@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using Test.Factories;
+using Test.Utils;
 
 namespace Test.Api.Repositories
 {
@@ -58,16 +59,34 @@ namespace Test.Api.Repositories
 
 			// 実行
 			var targetCompany = testCompanies.OrderBy(x => _random.Next()).FirstOrDefault();
+			Assert.IsNotNull(await TestUtil.GetObjectByIdAsync<Company>(_container, targetCompany.Id)); // 削除前の存在を確認
 			var company = await _repository.DeleteAsync(targetCompany.Id, (int)targetCompany.Category);
-			var queryable = _container.GetItemLinqQueryable<Company>().Where(c => c.Id == targetCompany.Id);
-			var iterator = queryable.ToFeedIterator();
-			var companies = new List<Company>();
-			while (iterator.HasMoreResults) {
-				var response = await iterator.ReadNextAsync();
-				Assert.IsFalse(response.Any()); // company は削除されている
-			}
+			Assert.IsNull(await TestUtil.GetObjectByIdAsync<Company>(_container, targetCompany.Id)); // 削除を確認 
 		}
 
 
+		[TestMethod]
+		public async Task CreateAsync() {
+			// 実行
+			var targetCompany = CompanyFactory.Generate(1).FirstOrDefault();
+			var company = await _repository.CreateAsync(targetCompany);
+			Assert.IsNotNull(await TestUtil.GetObjectByIdAsync<Company>(_container, targetCompany.Id)); // 存在を確認
+		}
+
+		[TestMethod]
+		public async Task PatchAsync() {
+			//ダミーデータの差し込み
+			var testCompanies = CompanyFactory.Generate(10);
+			await Task.WhenAll(testCompanies.Select(company => _container.CreateItemAsync(company, new PartitionKey((int)company.Category))));
+			// 実行
+			var targetCompany = testCompanies.OrderBy(x => _random.Next()).FirstOrDefault();
+			var patchCompany = CompanyFactory.Generate(10).FirstOrDefault();
+			patchCompany.Id = targetCompany.Id;
+			patchCompany.Category = targetCompany.Category;
+			var company = await _repository.PatchAsync(patchCompany);
+			var getCompany = await TestUtil.GetObjectByIdAsync<Company>(_container, targetCompany.Id);
+			Assert.AreEqual(patchCompany.Name, getCompany.Name); // Name は差し変わる
+			Assert.AreEqual(targetCompany.CreatedAt, getCompany.CreatedAt); //CreateAt は変わらない
+		}
 	}
 }
