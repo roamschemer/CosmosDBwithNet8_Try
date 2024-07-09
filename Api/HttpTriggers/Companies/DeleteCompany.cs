@@ -21,7 +21,7 @@ namespace Api.HttpTriggers.Companies
 		public async Task<IActionResult> Run(
 			[HttpTrigger(AuthorizationLevel.Function, "delete", Route = "companies/{category:int}/{id}")] HttpRequest req, int category, string id) {
 			_logger.LogInformation("C# HTTP trigger function processed a delete request.");
-			var response = await _companyRepository.Delete(id, category);
+			var response = await _companyRepository.DeleteAsync(id, category);
 			return new OkObjectResult(response);
 		}
 	}

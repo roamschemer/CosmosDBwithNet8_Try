@@ -28,7 +28,7 @@ namespace Api.HttpTriggers.Companies
 			if (companyData == null) {
 				return new BadRequestObjectResult("Invalid request payload.");
 			}
-			var response = await _companyRepository.Patch(companyData, id, category);
+			var response = await _companyRepository.PatchAsync(companyData, id, category);
 			return new OkObjectResult(response);
 		}
 	}

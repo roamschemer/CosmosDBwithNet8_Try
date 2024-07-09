@@ -8,9 +8,9 @@ namespace Api.Repositories
 	public interface ICompanyRepository
 	{
 		public Task<List<Company>> SelectConditionsAsync(Dictionary<string, string> conditions);
-		public Task<Company> Delete(string id, int category);
-		public Task<Company> Create(Company company);
-		public Task<Company> Patch(Company company, string id, int category);
+		public Task<Company> DeleteAsync(string id, int category);
+		public Task<Company> CreateAsync(Company company);
+		public Task<Company> PatchAsync(Company company, string id, int category);
 	}
 
 	public class CompanyRepository : ICompanyRepository
@@ -23,10 +23,15 @@ namespace Api.Repositories
 			_container = container;
 		}
 
+		/// <summary>
+		/// 検索条件に従いコンテナの値を取得する
+		/// </summary>
+		/// <param name="conditions">検索条件</param>
+		/// <returns>コンテナの値</returns>
 		public async Task<List<Company>> SelectConditionsAsync(Dictionary<string, string> conditions) {
 
-			var name = conditions.ContainsKey("name") ? conditions["name"] : null;
-			var category = conditions.ContainsKey("category") ? conditions["category"] : null;
+			conditions.TryGetValue("name", out var name);
+			conditions.TryGetValue("category", out var category);
 
 			var queryable = _container.GetItemLinqQueryable<Company>()
 				.Where(c => string.IsNullOrEmpty(name) || c.Name.Contains(name))
@@ -42,19 +47,23 @@ namespace Api.Repositories
 			return companies;
 		}
 
-		public async Task<Company> Delete(string id, int category) {
+		/// <summary>
+		/// 指定されたオブジェクトを削除する
+		/// </summary>
+		/// <returns></returns>
+		public async Task<Company> DeleteAsync(string id, int category) {
 			var response = await _container.DeleteItemAsync<Company>(id, new PartitionKey(category));
 			_logger.LogInformation($"{response.RequestCharge}RU 消費しました");
 			return response;
 		}
 
-		public async Task<Company> Create(Company company) {
+		public async Task<Company> CreateAsync(Company company) {
 			var response = await _container.CreateItemAsync(company, new PartitionKey((int)company.Category));
 			_logger.LogInformation($"{response.RequestCharge}RU 消費しました");
 			return response;
 		}
 
-		public async Task<Company> Patch(Company company, string id, int category) {
+		public async Task<Company> PatchAsync(Company company, string id, int category) {
 			var response = await _container.PatchItemAsync<Company>(
 				id,
 				new PartitionKey(category),
