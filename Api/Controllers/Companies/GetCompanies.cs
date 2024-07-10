@@ -1,10 +1,10 @@
+using Api.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using Api.Repositories;
 
-namespace Api.HttpTriggers.Companies
+namespace Api.Controllers.Companies
 {
 	public class GetCompanies
 	{

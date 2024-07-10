@@ -2,7 +2,6 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Logging;
-using System.ComponentModel.Design;
 
 namespace Api.Repositories
 {

@@ -8,12 +8,12 @@ using Microsoft.Extensions.Logging;
 
 var host = new HostBuilder()
 	.ConfigureFunctionsWebApplication()
-	.ConfigureServices((Action<IServiceCollection>)(async services => {
+	.ConfigureServices(async services => {
 		services.AddApplicationInsightsTelemetryWorkerService();
 		services.ConfigureFunctionsApplicationInsights();
 		ConfigureRepositories(services);
 		ConfigureValidators(services);
-	}))
+	})
 	.Build();
 
 host.Run();

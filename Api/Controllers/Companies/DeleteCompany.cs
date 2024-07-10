@@ -5,7 +5,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace Api.HttpTriggers.Companies
+namespace Api.Controllers.Companies
 {
 	public class DeleteCompany
 	{

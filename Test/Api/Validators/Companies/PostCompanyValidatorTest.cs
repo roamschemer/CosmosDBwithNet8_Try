@@ -1,9 +1,6 @@
-using Api.HttpTriggers.Companies;
 using Api.Repositories;
 using Api.Validators.Companies;
 using Data;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Extensions.Logging;
 using Moq;
 

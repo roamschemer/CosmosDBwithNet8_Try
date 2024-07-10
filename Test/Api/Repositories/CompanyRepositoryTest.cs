@@ -3,13 +3,9 @@ using Api.Utils;
 using Api.Validators.Companies;
 using Data;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Linq;
-using Microsoft.Azure.Cosmos.Serialization.HybridRow;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System;
 using Test.Factories;
-using Test.Utils;
 
 namespace Test.Api.Repositories
 {
@@ -39,16 +35,16 @@ namespace Test.Api.Repositories
 
 			// 実行
 			var companies = await _repository.SelectConditionsAsync(new() { });
-			Assert.AreEqual(testCompanies.Count, companies.Count); // 全取得
+			Assert.AreEqual(testCompanies.Count, companies.Count, "全取得");
 
 			var targetCompany = testCompanies.OrderBy(x => _random.Next()).FirstOrDefault();
 			var selectName = targetCompany.Name.Substring(1, 3);
 			companies = await _repository.SelectConditionsAsync(new() { { "name", selectName } });
-			Assert.IsTrue(companies.All(x => targetCompany.Name.Contains(selectName))); // Name は部分一致
+			Assert.IsTrue(companies.All(x => targetCompany.Name.Contains(selectName)), "Name は部分一致");
 
 			var selectCategory = targetCompany.Category;
 			companies = await _repository.SelectConditionsAsync(new() { { "category", selectCategory.ToString() } });
-			Assert.IsTrue(companies.All(x => targetCompany.Name.Contains(selectName))); // category は完全一致
+			Assert.IsTrue(companies.All(x => targetCompany.Name.Contains(selectName)), "category は完全一致");
 		}
 
 		[TestMethod]
@@ -59,9 +55,17 @@ namespace Test.Api.Repositories
 
 			// 実行
 			var targetCompany = testCompanies.OrderBy(x => _random.Next()).FirstOrDefault();
-			Assert.IsNotNull(await TestUtil.GetObjectByIdAsync<Company>(_container, targetCompany.Id)); // 削除前の存在を確認
+			var getCompanyResponse = await _container.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey((int)targetCompany.Category));
+			Assert.IsNotNull(getCompanyResponse.Resource, "削除前の存在を確認");
 			var company = await _repository.DeleteAsync(targetCompany.Id, (int)targetCompany.Category);
-			Assert.IsNull(await TestUtil.GetObjectByIdAsync<Company>(_container, targetCompany.Id)); // 削除を確認 
+			bool isDeleted = false;
+			try {
+				getCompanyResponse = await _container.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey((int)targetCompany.Category));
+			}
+			catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound) {
+				isDeleted = true;
+			}
+			Assert.IsTrue(isDeleted, "削除された事を確認");
 		}
 
 
@@ -70,7 +74,8 @@ namespace Test.Api.Repositories
 			// 実行
 			var targetCompany = CompanyFactory.Generate(1).FirstOrDefault();
 			var company = await _repository.CreateAsync(targetCompany);
-			Assert.IsNotNull(await TestUtil.GetObjectByIdAsync<Company>(_container, targetCompany.Id)); // 存在を確認
+			var getCompanyResponse = await _container.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey((int)targetCompany.Category));
+			Assert.IsNotNull(getCompanyResponse.Resource, "存在を確認");
 		}
 
 		[TestMethod]
@@ -84,9 +89,10 @@ namespace Test.Api.Repositories
 			patchCompany.Id = targetCompany.Id;
 			patchCompany.Category = targetCompany.Category;
 			var company = await _repository.PatchAsync(patchCompany);
-			var getCompany = await TestUtil.GetObjectByIdAsync<Company>(_container, targetCompany.Id);
-			Assert.AreEqual(patchCompany.Name, getCompany.Name); // Name は差し変わる
-			Assert.AreEqual(targetCompany.CreatedAt, getCompany.CreatedAt); //CreateAt は変わらない
+			var getCompanyResponse = await _container.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey((int)targetCompany.Category));
+			var getCompany = getCompanyResponse.Resource;
+			Assert.AreEqual(patchCompany.Name, getCompany.Name, "Name は差し変わる");
+			Assert.AreEqual(targetCompany.CreatedAt, getCompany.CreatedAt, "CreateAt は変わらない");
 		}
 	}
 }

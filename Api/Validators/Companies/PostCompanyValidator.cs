@@ -1,7 +1,5 @@
-﻿using Api.HttpTriggers.Companies;
-using Api.Repositories;
+﻿using Api.Repositories;
 using Data;
-using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
 
