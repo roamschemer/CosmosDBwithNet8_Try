@@ -6,7 +6,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Api.Controllers.Companies
 {
-	public class GetCompanies
+	public interface IGetCompanies
+	{
+		public Task<IActionResult> Run(HttpRequest req);
+	}
+
+	public class GetCompanies : IGetCompanies
 	{
 		private readonly ILogger<GetCompanies> _logger;
 		private readonly ICompanyRepository _companyRepository;

@@ -1,15 +1,11 @@
 ﻿using Api.Controllers.Companies;
-using Api.Repositories;
 using Api.Utils;
-using Api.Validators.Companies;
 using Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Test.Factories;
@@ -22,7 +18,7 @@ namespace Test.Api.Apis
 		public TestContext TestContext { get; set; }
 		private Container _companyContainer;
 		private Random _random = new();
-		private GetCompanies _getCompanies;
+		private IGetCompanies _getCompanies;
 
 		[TestInitialize]
 		public async Task Setup() {
@@ -30,19 +26,10 @@ namespace Test.Api.Apis
 			_companyContainer = await dbInitializer.GetContainerAsync("companies", "/" + "category", isCleanUp: true);
 			var host = new HostBuilder()
 				.ConfigureFunctionsWebApplication()
-				.ConfigureServices(async services => {
-					services.AddApplicationInsightsTelemetryWorkerService();
-					services.ConfigureFunctionsApplicationInsights();
-					services.AddSingleton<ICompanyRepository>(provider => new CompanyRepository(
-						provider.GetRequiredService<ILogger<CompanyRepository>>(),
-						dbInitializer.GetContainerAsync("companies", "/" + "category").GetAwaiter().GetResult()
-					));
-					services.AddSingleton<IPostCompanyValidator, PostCompanyValidator>();
-					services.AddSingleton<GetCompanies>();
-				})
+				.ConfigureServices(services => Startup.ConfigureServices(services, dbInitializer))
 				.Build();
 			var serviceProvider = host.Services;
-			_getCompanies = serviceProvider.GetRequiredService<GetCompanies>();
+			_getCompanies = serviceProvider.GetRequiredService<IGetCompanies>();
 		}
 
 		[TestMethod]
