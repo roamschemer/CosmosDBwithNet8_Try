@@ -1,13 +1,16 @@
 ﻿using Api.Controllers.Companies;
 using Api.Repositories;
 using Api.Utils;
+using Api.Validators.Companies;
 using Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-using Moq;
 using Newtonsoft.Json;
 using Test.Factories;
 
@@ -25,10 +28,21 @@ namespace Test.Api.Apis
 		public async Task Setup() {
 			var dbInitializer = new CosmosDbInitializer(TestContext.Properties["CosmosDBConnection"]?.ToString(), TestContext.Properties["CosmosDb"]?.ToString());
 			_companyContainer = await dbInitializer.GetContainerAsync("companies", "/" + "category", isCleanUp: true);
-			_getCompanies = new GetCompanies(
-				new Mock<ILogger<GetCompanies>>().Object,
-				new CompanyRepository(new Mock<ILogger<ICompanyRepository>>().Object, _companyContainer)
-			);
+			var host = new HostBuilder()
+				.ConfigureFunctionsWebApplication()
+				.ConfigureServices(async services => {
+					services.AddApplicationInsightsTelemetryWorkerService();
+					services.ConfigureFunctionsApplicationInsights();
+					services.AddSingleton<ICompanyRepository>(provider => new CompanyRepository(
+						provider.GetRequiredService<ILogger<CompanyRepository>>(),
+						dbInitializer.GetContainerAsync("companies", "/" + "category").GetAwaiter().GetResult()
+					));
+					services.AddSingleton<IPostCompanyValidator, PostCompanyValidator>();
+					services.AddSingleton<GetCompanies>();
+				})
+				.Build();
+			var serviceProvider = host.Services;
+			_getCompanies = serviceProvider.GetRequiredService<GetCompanies>();
 		}
 
 		[TestMethod]
