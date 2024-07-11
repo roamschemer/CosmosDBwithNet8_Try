@@ -3,8 +3,8 @@ using Api.Utils;
 using Api.Validators.Companies;
 using Data;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Logging;
-using Moq;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Test.Factories;
 
@@ -15,17 +15,21 @@ namespace Test.Api.Repositories
 	{
 		public TestContext TestContext { get; set; }
 		private IPostCompanyValidator _validator;
-		private CompanyRepository _repository;
+		private ICompanyRepository _repository;
 		private Container _container;
 		private Random _random = new();
 
 
 		[TestInitialize]
 		public async Task Setup() {
-			var mockLogger = new Mock<ILogger<ICompanyRepository>>();
 			var dbInitializer = new CosmosDbInitializer(TestContext.Properties["CosmosDBConnection"]?.ToString(), TestContext.Properties["CosmosDb"]?.ToString());
-			_container = await dbInitializer.GetContainerAsync("companies", "/" + "category", isCleanUp: true);
-			_repository = new CompanyRepository(mockLogger.Object, _container);
+			var host = new HostBuilder()
+				.ConfigureFunctionsWebApplication()
+				.ConfigureServices(services => Startup.ConfigureServices(services, dbInitializer, isCleanUp: true))
+				.Build();
+			var serviceProvider = host.Services;
+			_container = serviceProvider.GetRequiredService<ICompanyContainer>().Container;
+			_repository = serviceProvider.GetRequiredService<ICompanyRepository>();
 		}
 
 		[TestMethod]

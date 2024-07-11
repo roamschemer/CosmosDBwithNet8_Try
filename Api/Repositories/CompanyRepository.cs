@@ -1,4 +1,5 @@
-﻿using Data;
+﻿using Api.Utils;
+using Data;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Logging;
@@ -18,9 +19,9 @@ namespace Api.Repositories
 		private readonly ILogger<ICompanyRepository> _logger;
 		private readonly Container _container;
 
-		public CompanyRepository(ILogger<ICompanyRepository> logger, Container container) {
+		public CompanyRepository(ILogger<ICompanyRepository> logger, ICompanyContainer container) {
 			_logger = logger;
-			_container = container;
+			_container = container.Container;
 		}
 
 		/// <summary>

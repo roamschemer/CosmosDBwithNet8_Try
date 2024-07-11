@@ -23,12 +23,12 @@ namespace Test.Api.Apis
 		[TestInitialize]
 		public async Task Setup() {
 			var dbInitializer = new CosmosDbInitializer(TestContext.Properties["CosmosDBConnection"]?.ToString(), TestContext.Properties["CosmosDb"]?.ToString());
-			_companyContainer = await dbInitializer.GetContainerAsync("companies", "/" + "category", isCleanUp: true);
 			var host = new HostBuilder()
 				.ConfigureFunctionsWebApplication()
-				.ConfigureServices(services => Startup.ConfigureServices(services, dbInitializer))
+				.ConfigureServices(services => Startup.ConfigureServices(services, dbInitializer, isCleanUp: true))
 				.Build();
 			var serviceProvider = host.Services;
+			_companyContainer = serviceProvider.GetRequiredService<ICompanyContainer>().Container;
 			_getCompanies = serviceProvider.GetRequiredService<IGetCompanies>();
 		}
 

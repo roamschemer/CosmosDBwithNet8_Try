@@ -1,21 +1,30 @@
-using Api.Repositories;
+using Api.Utils;
 using Api.Validators.Companies;
 using Data;
-using Microsoft.Extensions.Logging;
-using Moq;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Test.Api.Validators.Companies
 {
 	[TestClass]
 	public class PostCompanyValidatorTest
 	{
+		public TestContext TestContext { get; set; }
+		private Container _companyContainer;
+		private Random _random = new();
 		private IPostCompanyValidator _validator;
 
 		[TestInitialize]
 		public void Setup() {
-			var mockLogger = new Mock<ILogger<IPostCompanyValidator>>();
-			var mockCosmosClient = new Mock<ICompanyRepository>();
-			_validator = new PostCompanyValidator(mockLogger.Object, mockCosmosClient.Object);
+			var dbInitializer = new CosmosDbInitializer(TestContext.Properties["CosmosDBConnection"]?.ToString(), TestContext.Properties["CosmosDb"]?.ToString());
+			var host = new HostBuilder()
+				.ConfigureFunctionsWebApplication()
+				.ConfigureServices(services => Startup.ConfigureServices(services, dbInitializer, isCleanUp: true))
+				.Build();
+			var serviceProvider = host.Services;
+			_companyContainer = serviceProvider.GetRequiredService<ICompanyContainer>().Container;
+			_validator = serviceProvider.GetRequiredService<IPostCompanyValidator>();
 		}
 
 		[TestMethod]

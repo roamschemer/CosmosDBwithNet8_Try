@@ -3,7 +3,7 @@ using Api.Repositories;
 using Api.Validators.Companies;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using static Api.Utils.CosmosDbInitializer;
 
 namespace Api.Utils
 {
@@ -14,17 +14,16 @@ namespace Api.Utils
 		/// </summary>
 		/// <param name="services"></param>
 		/// <param name="dbInitializer"></param>
-		public static void ConfigureServices(IServiceCollection services, CosmosDbInitializer dbInitializer) {
+		public static void ConfigureServices(IServiceCollection services, CosmosDbInitializer dbInitializer, ThroughputMode mode = ThroughputMode.Manual, int? maxThroughput = null, bool isCleanUp = false) {
 			services.AddApplicationInsightsTelemetryWorkerService();
 			services.ConfigureFunctionsApplicationInsights();
-			//Repository層
-			services.AddSingleton<ICompanyRepository>(provider => new CompanyRepository(
-				provider.GetRequiredService<ILogger<CompanyRepository>>(),
-				dbInitializer.GetContainerAsync("companies", "/" + "category").GetAwaiter().GetResult()
-			));
-			//Validator層
+			//Container
+			services.AddSingleton<ICompanyContainer>(provider => new CosmosContainerWrapper(dbInitializer.GetContainerAsync("companies", "/" + "category", mode, maxThroughput, isCleanUp).GetAwaiter().GetResult()));
+			//Repository
+			services.AddSingleton<ICompanyRepository, CompanyRepository>();
+			//Validator
 			services.AddSingleton<IPostCompanyValidator, PostCompanyValidator>();
-			//Controller層
+			//Controller
 			services.AddSingleton<IGetCompanies, GetCompanies>();
 		}
 	}
