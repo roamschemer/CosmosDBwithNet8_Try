@@ -7,7 +7,12 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Api.Controllers.Companies
 {
-	public class DeleteCompany
+	public interface IDeleteCompany
+	{
+		public Task<IActionResult> Run(HttpRequest req, int category, string id);
+	}
+
+	public class DeleteCompany : IDeleteCompany
 	{
 		private readonly ILogger<DeleteCompany> _logger;
 		private readonly ICompanyRepository _companyRepository;

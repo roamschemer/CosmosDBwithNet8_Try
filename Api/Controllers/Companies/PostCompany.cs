@@ -10,7 +10,12 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Api.Controllers.Companies
 {
-	public class PostCompany
+	public interface IPostCompany
+	{
+		public Task<IActionResult> Run(HttpRequest req);
+	}
+
+	public class PostCompany : IPostCompany
 	{
 		private readonly ILogger<GetCompanies> _logger;
 		private readonly IPostCompanyValidator _validator;

@@ -9,7 +9,12 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Api.Controllers.Companies
 {
-	public class PatchCompany
+	public interface IPatchCompany
+	{
+		public Task<IActionResult> Run(HttpRequest req);
+	}
+
+	public class PatchCompany : IPatchCompany
 	{
 		private readonly ILogger<PatchCompany> _logger;
 		private readonly ICompanyRepository _companyRepository;

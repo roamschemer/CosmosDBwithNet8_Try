@@ -25,6 +25,9 @@ namespace Api.Utils
 			services.AddSingleton<IPostCompanyValidator, PostCompanyValidator>();
 			//Controller
 			services.AddSingleton<IGetCompanies, GetCompanies>();
+			services.AddSingleton<IDeleteCompany, DeleteCompany>();
+			services.AddSingleton<IPatchCompany, PatchCompany>();
+			services.AddSingleton<IPostCompany, PostCompany>();
 		}
 	}
 }
