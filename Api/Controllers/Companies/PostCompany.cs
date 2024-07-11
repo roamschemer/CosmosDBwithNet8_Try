@@ -1,25 +1,30 @@
+using Api.Repositories;
 using Api.Validators.Companies;
 using Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace Api.HttpTriggers.Companies
+namespace Api.Controllers.Companies
 {
-	public class PostCompany
+	public interface IPostCompany
+	{
+		public Task<IActionResult> Run(HttpRequest req);
+	}
+
+	public class PostCompany : IPostCompany
 	{
 		private readonly ILogger<GetCompanies> _logger;
-		private readonly CosmosClient _cosmosClient;
-		private readonly PostCompanyValidator _validator;
+		private readonly IPostCompanyValidator _validator;
+		private readonly ICompanyRepository _companyRepository;
 
-		public PostCompany(ILogger<GetCompanies> logger, CosmosClient cosmosClient, PostCompanyValidator validator) {
+		public PostCompany(ILogger<GetCompanies> logger, IPostCompanyValidator validator, ICompanyRepository companyRepository) {
 			_logger = logger;
-			_cosmosClient = cosmosClient;
 			_validator = validator;
+			_companyRepository = companyRepository;
 		}
 
 		[Function(nameof(PostCompany))]
@@ -42,10 +47,7 @@ namespace Api.HttpTriggers.Companies
 			company.Id = Guid.NewGuid().ToString();
 			company.CreatedAt = DateTime.UtcNow;
 
-			var container = _cosmosClient.GetContainer(Environment.GetEnvironmentVariable("CosmosDb"), "companies");
-
-			var response = await container.CreateItemAsync(company, new PartitionKey((int)company.Category));
-			_logger.LogInformation($"{response.RequestCharge}RU è¡îÔÇµÇ‹ÇµÇΩ");
+			var response = await _companyRepository.CreateAsync(company);
 			return new OkObjectResult(company);
 		}
 	}
