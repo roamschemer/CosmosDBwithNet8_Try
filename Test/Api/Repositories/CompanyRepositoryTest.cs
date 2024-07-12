@@ -61,11 +61,11 @@ namespace Test.Api.Repositories
 		[TestMethod]
 		public async Task DeleteAsync() {
 			//ダミーデータの差し込み
-			var testCompanies = CompanyFactory.Generate(10);
-			await Task.WhenAll(testCompanies.Select(company => _container.CreateItemAsync(company, new PartitionKey((int)company.Category))));
+			var targetCompanies = CompanyFactory.Generate(10);
+			await Task.WhenAll(targetCompanies.Select(company => _container.CreateItemAsync(company, new PartitionKey((int)company.Category))));
 
 			// 実行
-			var targetCompany = testCompanies.OrderBy(x => _random.Next()).FirstOrDefault();
+			var targetCompany = targetCompanies.OrderBy(x => _random.Next()).FirstOrDefault();
 			var getCompanyResponse = await _container.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey((int)targetCompany.Category));
 			Assert.IsNotNull(getCompanyResponse.Resource, "削除前の存在を確認");
 			var company = await _repository.DeleteAsync(targetCompany.Id, (int)targetCompany.Category);
@@ -92,10 +92,10 @@ namespace Test.Api.Repositories
 		[TestMethod]
 		public async Task PatchAsync() {
 			//ダミーデータの差し込み
-			var testCompanies = CompanyFactory.Generate(10);
-			await Task.WhenAll(testCompanies.Select(company => _container.CreateItemAsync(company, new PartitionKey((int)company.Category))));
+			var targetCompanies = CompanyFactory.Generate(10);
+			await Task.WhenAll(targetCompanies.Select(company => _container.CreateItemAsync(company, new PartitionKey((int)company.Category))));
 			// 実行
-			var targetCompany = testCompanies.OrderBy(x => _random.Next()).FirstOrDefault();
+			var targetCompany = targetCompanies.OrderBy(x => _random.Next()).FirstOrDefault();
 			var patchCompany = CompanyFactory.Generate(10).FirstOrDefault();
 			patchCompany.Id = targetCompany.Id;
 			patchCompany.Category = targetCompany.Category;

@@ -9,7 +9,7 @@ namespace Api.Controllers.Companies
 {
 	public interface IDeleteCompany
 	{
-		public Task<IActionResult> Run(HttpRequest req, int category, string id);
+		public Task<IActionResult> Run(HttpRequest req, string id, int category);
 	}
 
 	public class DeleteCompany : IDeleteCompany
@@ -24,7 +24,7 @@ namespace Api.Controllers.Companies
 
 		[Function(nameof(DeleteCompany))]
 		public async Task<IActionResult> Run(
-			[HttpTrigger(AuthorizationLevel.Function, "delete", Route = "companies/{category:int}/{id}")] HttpRequest req, int category, string id) {
+			[HttpTrigger(AuthorizationLevel.Function, "delete", Route = "companies/{category:int}/{id}")] HttpRequest req, string id, int category) {
 			_logger.LogInformation("C# HTTP trigger function processed a delete request.");
 			var response = await _companyRepository.DeleteAsync(id, category);
 			return new OkObjectResult(response);
