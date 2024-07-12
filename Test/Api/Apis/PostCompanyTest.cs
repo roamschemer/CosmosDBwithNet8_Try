@@ -6,17 +6,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Text;
+using System.Text.Json;
 using Test.Factories;
 
 namespace Test.Api.Apis
 {
 	[TestClass]
-	public class DeleteCompanyTest
+	public class PostCompanyTest
 	{
 		public TestContext TestContext { get; set; }
 		private Container _companyContainer;
 		private Random _random = new();
-		private IDeleteCompany _deleteCompany;
+		private IPostCompany _postCompany;
 
 		[TestInitialize]
 		public void Setup() {
@@ -27,34 +29,28 @@ namespace Test.Api.Apis
 				.Build();
 			var serviceProvider = host.Services;
 			_companyContainer = serviceProvider.GetRequiredService<ICompanyContainer>().Container;
-			_deleteCompany = serviceProvider.GetRequiredService<IDeleteCompany>();
+			_postCompany = serviceProvider.GetRequiredService<IPostCompany>();
 		}
 
 		[TestMethod]
-		public async Task Run_削除() {
-			var targetCompanies = CompanyFactory.Generate(10);
-			await Task.WhenAll(targetCompanies.Select(company => _companyContainer.CreateItemAsync(company, new PartitionKey((int)company.Category))));
-
-			var targetCompany = targetCompanies.OrderBy(x => _random.Next()).FirstOrDefault();
-			var getCompanyResponse = await _companyContainer.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey((int)targetCompany.Category));
-			Assert.IsNotNull(getCompanyResponse.Resource, "削除前の存在を確認");
+		public async Task Run_作成() {
+			var targetCompany = CompanyFactory.Generate(1).FirstOrDefault();
+			targetCompany.Id = null; //Post時にIDは存在しない
 
 			var httpRequest = new DefaultHttpContext().Request;
-			var result = await _deleteCompany.Run(httpRequest, targetCompany.Id, (int)targetCompany.Category);
+
+			httpRequest.Body = new MemoryStream(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(targetCompany)));
+
+			var result = await _postCompany.Run(httpRequest);
 
 			Assert.IsNotNull(result);
 			var okResult = result as OkObjectResult;
 			Assert.IsNotNull(okResult);
 			var getCompany = okResult.Value as Company;
 
-			bool isDeleted = false;
-			try {
-				getCompanyResponse = await _companyContainer.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey((int)targetCompany.Category));
-			}
-			catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound) {
-				isDeleted = true;
-			}
-			Assert.IsTrue(isDeleted, "削除された事を確認");
+			var getCompanyResponse = await _companyContainer.ReadItemAsync<Company>(getCompany.Id, new PartitionKey((int)getCompany.Category));
+			Assert.IsNotNull(getCompanyResponse.Resource, "存在を確認");
+
 		}
 	}
 }

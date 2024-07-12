@@ -96,7 +96,7 @@ namespace Test.Api.Repositories
 			await Task.WhenAll(targetCompanies.Select(company => _container.CreateItemAsync(company, new PartitionKey((int)company.Category))));
 			// 実行
 			var targetCompany = targetCompanies.OrderBy(x => _random.Next()).FirstOrDefault();
-			var patchCompany = CompanyFactory.Generate(10).FirstOrDefault();
+			var patchCompany = CompanyFactory.Generate(1).FirstOrDefault();
 			patchCompany.Id = targetCompany.Id;
 			patchCompany.Category = targetCompany.Category;
 			var company = await _repository.PatchAsync(patchCompany);

@@ -21,7 +21,7 @@ namespace Test.Api.Apis
 		private IGetCompanies _getCompanies;
 
 		[TestInitialize]
-		public async Task Setup() {
+		public void Setup() {
 			var dbInitializer = new CosmosDbInitializer(TestContext.Properties["CosmosDBConnection"]?.ToString(), TestContext.Properties["CosmosDb"]?.ToString());
 			var host = new HostBuilder()
 				.ConfigureFunctionsWebApplication()
