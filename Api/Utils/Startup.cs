@@ -1,8 +1,10 @@
 ﻿using Api.Controllers.Companies;
+using Api.Middlewares;
 using Api.Repositories;
 using Api.Validators.Companies;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using static Api.Utils.CosmosDbInitializer;
 
 namespace Api.Utils
@@ -28,6 +30,15 @@ namespace Api.Utils
 			services.AddSingleton<IDeleteCompany, DeleteCompany>();
 			services.AddSingleton<IPatchCompany, PatchCompany>();
 			services.AddSingleton<IPostCompany, PostCompany>();
+		}
+
+		/// <summary>
+		/// ミドルウェアの登録
+		/// </summary>
+		/// <param name="builder"></param>
+		/// <returns></returns>
+		public static void ConfigureFunctionsWebApplication(IFunctionsWorkerApplicationBuilder worker) {
+			worker.UseMiddleware<LoggingMiddleware>();
 		}
 	}
 }

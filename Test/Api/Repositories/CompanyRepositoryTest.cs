@@ -24,7 +24,7 @@ namespace Test.Api.Repositories
 		public async Task Setup() {
 			var dbInitializer = new CosmosDbInitializer(TestContext.Properties["CosmosDBConnection"]?.ToString(), TestContext.Properties["CosmosDb"]?.ToString());
 			var host = new HostBuilder()
-				.ConfigureFunctionsWebApplication()
+				.ConfigureFunctionsWebApplication(worker => Startup.ConfigureFunctionsWebApplication(worker))
 				.ConfigureServices(services => Startup.ConfigureServices(services, dbInitializer, isCleanUp: true))
 				.Build();
 			var serviceProvider = host.Services;

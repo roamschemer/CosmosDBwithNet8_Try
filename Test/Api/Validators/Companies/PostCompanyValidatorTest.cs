@@ -19,7 +19,7 @@ namespace Test.Api.Validators.Companies
 		public void Setup() {
 			var dbInitializer = new CosmosDbInitializer(TestContext.Properties["CosmosDBConnection"]?.ToString(), TestContext.Properties["CosmosDb"]?.ToString());
 			var host = new HostBuilder()
-				.ConfigureFunctionsWebApplication()
+				.ConfigureFunctionsWebApplication(worker => Startup.ConfigureFunctionsWebApplication(worker))
 				.ConfigureServices(services => Startup.ConfigureServices(services, dbInitializer, isCleanUp: true))
 				.Build();
 			var serviceProvider = host.Services;

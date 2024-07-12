@@ -6,7 +6,7 @@ var databaseId = Environment.GetEnvironmentVariable("CosmosDb");
 var dbInitializer = new CosmosDbInitializer(connectionString, databaseId);
 
 var host = new HostBuilder()
-	.ConfigureFunctionsWebApplication()
+	.ConfigureFunctionsWebApplication(worker => Startup.ConfigureFunctionsWebApplication(worker))
 	.ConfigureServices(services => Startup.ConfigureServices(services, dbInitializer))
 	.Build();
 
