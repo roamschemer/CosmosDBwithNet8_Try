@@ -4,13 +4,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Api.Middlewares
 {
-	public class LoggingMiddleware : IFunctionsWorkerMiddleware
+	public class LoggingMiddleware(ILogger<LoggingMiddleware> logger) : IFunctionsWorkerMiddleware
 	{
-		private readonly ILogger<LoggingMiddleware> _logger;
-
-		public LoggingMiddleware(ILogger<LoggingMiddleware> logger) {
-			_logger = logger;
-		}
+		private readonly ILogger<LoggingMiddleware> _logger = logger;
 
 		public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next) {
 			// リクエスト情報のログ出力

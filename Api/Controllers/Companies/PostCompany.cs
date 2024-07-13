@@ -1,4 +1,4 @@
-using Api.Repositories;
+using Api.Usecases;
 using Api.Validators.Companies;
 using Data;
 using Microsoft.AspNetCore.Http;
@@ -15,17 +15,11 @@ namespace Api.Controllers.Companies
 		public Task<IActionResult> Run(HttpRequest req);
 	}
 
-	public class PostCompany : IPostCompany
+	public class PostCompany(ILogger<GetCompanies> logger, IPostCompanyValidator validator, ICompanyUsecase companyUsecase) : IPostCompany
 	{
-		private readonly ILogger<GetCompanies> _logger;
-		private readonly IPostCompanyValidator _validator;
-		private readonly ICompanyRepository _companyRepository;
-
-		public PostCompany(ILogger<GetCompanies> logger, IPostCompanyValidator validator, ICompanyRepository companyRepository) {
-			_logger = logger;
-			_validator = validator;
-			_companyRepository = companyRepository;
-		}
+		private readonly ILogger<GetCompanies> _logger = logger;
+		private readonly IPostCompanyValidator _validator = validator;
+		private readonly ICompanyUsecase _companyUsecase = companyUsecase;
 
 		[Function(nameof(PostCompany))]
 		public async Task<IActionResult> Run(
@@ -47,7 +41,7 @@ namespace Api.Controllers.Companies
 			company.Id = Guid.NewGuid().ToString();
 			company.CreatedAt = DateTime.UtcNow;
 
-			var response = await _companyRepository.CreateAsync(company);
+			var response = await _companyUsecase.CreateAsync(company);
 			return new OkObjectResult(company);
 		}
 	}

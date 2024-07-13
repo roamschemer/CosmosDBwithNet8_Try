@@ -14,15 +14,10 @@ namespace Api.Repositories
 		public Task<Company> PatchAsync(Company company);
 	}
 
-	public class CompanyRepository : ICompanyRepository
+	public class CompanyRepository(ILogger<ICompanyRepository> logger, ICompanyContainer container) : ICompanyRepository
 	{
-		private readonly ILogger<ICompanyRepository> _logger;
-		private readonly Container _container;
-
-		public CompanyRepository(ILogger<ICompanyRepository> logger, ICompanyContainer container) {
-			_logger = logger;
-			_container = container.Container;
-		}
+		private readonly ILogger<ICompanyRepository> _logger = logger;
+		private readonly Container _container = container.Container;
 
 		/// <summary>
 		/// 検索条件に従いコンテナの値を取得する

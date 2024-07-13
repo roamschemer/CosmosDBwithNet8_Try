@@ -1,4 +1,4 @@
-using Api.Repositories;
+using Api.Usecases;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -11,15 +11,10 @@ namespace Api.Controllers.Companies
 		public Task<IActionResult> Run(HttpRequest req);
 	}
 
-	public class GetCompanies : IGetCompanies
+	public class GetCompanies(ILogger<GetCompanies> logger, ICompanyUsecase companyUsecase) : IGetCompanies
 	{
-		private readonly ILogger<GetCompanies> _logger;
-		private readonly ICompanyRepository _companyRepository;
-
-		public GetCompanies(ILogger<GetCompanies> logger, ICompanyRepository companyRepository) {
-			_logger = logger;
-			_companyRepository = companyRepository;
-		}
+		private readonly ILogger<GetCompanies> _logger = logger;
+		private readonly ICompanyUsecase _companyUsecase = companyUsecase;
 
 		[Function(nameof(GetCompanies))]
 		public async Task<IActionResult> Run(
@@ -27,7 +22,7 @@ namespace Api.Controllers.Companies
 
 			_logger.LogInformation("C# HTTP trigger function processed a get request.");
 
-			var companies = await _companyRepository.SelectConditionsAsync(new(){
+			var companies = await _companyUsecase.SelectConditionsAsync(new(){
 				{ "name", req.Query["name"].ToString() },
 				{ "category", req.Query["category"].ToString() }
 			});

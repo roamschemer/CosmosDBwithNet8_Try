@@ -1,6 +1,7 @@
 ﻿using Api.Controllers.Companies;
 using Api.Middlewares;
 using Api.Repositories;
+using Api.Usecases;
 using Api.Validators.Companies;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,15 +22,17 @@ namespace Api.Utils
 			services.ConfigureFunctionsApplicationInsights();
 			//Container
 			services.AddSingleton<ICompanyContainer>(provider => new CosmosContainerWrapper(dbInitializer.GetContainerAsync("companies", "/" + "category", mode, maxThroughput, isCleanUp).GetAwaiter().GetResult()));
-			//Repository
-			services.AddSingleton<ICompanyRepository, CompanyRepository>();
-			//Validator
-			services.AddSingleton<IPostCompanyValidator, PostCompanyValidator>();
 			//Controller
 			services.AddSingleton<IGetCompanies, GetCompanies>();
 			services.AddSingleton<IDeleteCompany, DeleteCompany>();
 			services.AddSingleton<IPatchCompany, PatchCompany>();
 			services.AddSingleton<IPostCompany, PostCompany>();
+			//Usecase
+			services.AddSingleton<ICompanyUsecase, CompanyUsecase>();
+			//Repository
+			services.AddSingleton<ICompanyRepository, CompanyRepository>();
+			//Validator
+			services.AddSingleton<IPostCompanyValidator, PostCompanyValidator>();
 		}
 
 		/// <summary>

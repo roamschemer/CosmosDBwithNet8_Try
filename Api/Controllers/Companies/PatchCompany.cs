@@ -1,4 +1,4 @@
-using Api.Repositories;
+using Api.Usecases;
 using Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,15 +14,10 @@ namespace Api.Controllers.Companies
 		public Task<IActionResult> Run(HttpRequest req);
 	}
 
-	public class PatchCompany : IPatchCompany
+	public class PatchCompany(ILogger<PatchCompany> logger, ICompanyUsecase companyUsecase) : IPatchCompany
 	{
-		private readonly ILogger<PatchCompany> _logger;
-		private readonly ICompanyRepository _companyRepository;
-
-		public PatchCompany(ILogger<PatchCompany> logger, ICompanyRepository companyRepository) {
-			_logger = logger;
-			_companyRepository = companyRepository;
-		}
+		private readonly ILogger<PatchCompany> _logger = logger;
+		private readonly ICompanyUsecase _companyRepository = companyUsecase;
 
 		[Function(nameof(PatchCompany))]
 		public async Task<IActionResult> Run(
