@@ -17,7 +17,7 @@ namespace Test.Api.Validators.Companies
 
 		[TestInitialize]
 		public void Setup() {
-			var dbInitializer = new CosmosDbInitializer(TestContext.Properties["CosmosDBConnection"]?.ToString(), TestContext.Properties["CosmosDb"]?.ToString());
+			var dbInitializer = new CosmosDbInitializer(TestContext.Properties["CosmosDBConnection"]?.ToString(), TestContext.Properties["CosmosDb"]?.ToString() + nameof(PostCompanyValidatorTest));
 			var host = new HostBuilder()
 				.ConfigureFunctionsWebApplication(worker => Startup.ConfigureFunctionsWebApplication(worker))
 				.ConfigureServices(services => Startup.ConfigureServices(services, dbInitializer, isCleanUp: true))

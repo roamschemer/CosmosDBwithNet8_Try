@@ -22,7 +22,7 @@ namespace Test.Api.Apis
 
 		[TestInitialize]
 		public void Setup() {
-			var dbInitializer = new CosmosDbInitializer(TestContext.Properties["CosmosDBConnection"]?.ToString(), TestContext.Properties["CosmosDb"]?.ToString());
+			var dbInitializer = new CosmosDbInitializer(TestContext.Properties["CosmosDBConnection"]?.ToString(), TestContext.Properties["CosmosDb"]?.ToString() + nameof(GetCompaniesTest));
 			var host = new HostBuilder()
 				.ConfigureFunctionsWebApplication(worker => Startup.ConfigureFunctionsWebApplication(worker))
 				.ConfigureServices(services => Startup.ConfigureServices(services, dbInitializer, isCleanUp: true))
