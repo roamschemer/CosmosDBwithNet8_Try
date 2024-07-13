@@ -54,6 +54,8 @@ namespace Api.Repositories
 		}
 
 		public async Task<Company> CreateAsync(Company company) {
+			company.Id = Guid.NewGuid().ToString();
+			company.CreatedAt = DateTime.UtcNow;
 			var response = await _container.CreateItemAsync(company, new PartitionKey((int)company.Category));
 			_logger.LogInformation($"{response.RequestCharge}RU 消費しました");
 			return response;

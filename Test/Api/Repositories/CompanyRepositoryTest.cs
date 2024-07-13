@@ -84,7 +84,11 @@ namespace Test.Api.Repositories
 		public async Task CreateAsync() {
 			// 実行
 			var targetCompany = CompanyFactory.Generate(1).FirstOrDefault();
+			targetCompany.Id = null;
+			targetCompany.CreatedAt = null;
 			var company = await _repository.CreateAsync(targetCompany);
+			Assert.IsNotNull(company.Id, "IDが付与されている");
+			Assert.IsNotNull(company.CreatedAt, "作成日が付与されている");
 			var getCompanyResponse = await _container.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey((int)targetCompany.Category));
 			Assert.IsNotNull(getCompanyResponse.Resource, "存在を確認");
 		}

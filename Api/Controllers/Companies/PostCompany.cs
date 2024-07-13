@@ -33,16 +33,13 @@ namespace Api.Controllers.Companies
 			}
 
 			var validationResults = _validator.Validate(company);
-
 			if (validationResults.Any()) {
 				return new BadRequestObjectResult(validationResults);
 			}
 
-			company.Id = Guid.NewGuid().ToString();
-			company.CreatedAt = DateTime.UtcNow;
+			var createCompany = await _companyUsecase.CreateAsync(company);
 
-			var response = await _companyUsecase.CreateAsync(company);
-			return new OkObjectResult(company);
+			return new OkObjectResult(createCompany);
 		}
 	}
 }
