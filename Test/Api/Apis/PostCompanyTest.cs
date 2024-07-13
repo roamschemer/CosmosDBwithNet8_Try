@@ -48,6 +48,8 @@ namespace Test.Api.Apis
 			Assert.IsNotNull(okResult);
 			var getCompany = okResult.Value as Company;
 
+			Assert.IsNotNull(getCompany.Id, "IDが付与されている");
+			Assert.IsNotNull(getCompany.CreatedAt, "作成日が付与されている");
 			var getCompanyResponse = await _companyContainer.ReadItemAsync<Company>(getCompany.Id, new PartitionKey((int)getCompany.Category));
 			Assert.IsNotNull(getCompanyResponse.Resource, "存在を確認");
 

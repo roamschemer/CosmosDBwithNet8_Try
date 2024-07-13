@@ -11,7 +11,8 @@ namespace Test.Factories
 				.RuleFor(o => o.Id, f => Guid.NewGuid().ToString())
 				.RuleFor(o => o.Name, f => f.Company.CompanyName())
 				.RuleFor(o => o.Category, f => f.PickRandom<Company.CategoryDatas>())
-				.RuleFor(o => o.CreatedAt, f => f.Date.Past(2));
+				.RuleFor(o => o.CreatedAt, f => f.Date.Past(2))
+				.RuleFor(o => o.UpdatedAt, f => f.Date.Past(2));
 
 			return fakerCompany.Generate(count);
 		}

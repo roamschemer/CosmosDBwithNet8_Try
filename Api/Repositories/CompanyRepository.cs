@@ -56,6 +56,7 @@ namespace Api.Repositories
 		public async Task<Company> CreateAsync(Company company) {
 			company.Id = Guid.NewGuid().ToString();
 			company.CreatedAt = DateTime.UtcNow;
+			company.UpdatedAt = company.CreatedAt;
 			var response = await _container.CreateItemAsync(company, new PartitionKey((int)company.Category));
 			_logger.LogInformation($"{response.RequestCharge}RU 消費しました");
 			return response;
@@ -66,13 +67,19 @@ namespace Api.Repositories
 				company.Id,
 				new PartitionKey((int)company.Category),
 				patchOperations: [
-					PatchOperation.Replace("/name", company.Name),	// 更新
-					//他にも色々できる。
+					PatchOperation.Set("/name", company.Name),
+					PatchOperation.Set("/updatedAt", DateTime.UtcNow),
+
+					//色々できる。詳しくは、https://learn.microsoft.com/ja-jp/azure/cosmos-db/partial-document-update
+					//更新の際はSetを使い、配列への更新時はAddを使うのが良いと思う。Replaceは後から追加したプロパティでこけるので基本的には使わない方が良い。
+
+					//PatchOperation.Replace("/name", company.Name),	// 更新
 					//PatchOperation.Add("/color", "silver"),			// 追加
 					//PatchOperation.Remove("/used"),					// 削除
 					//PatchOperation.Increment("/price", 50.00),		// インクリメント
-					//PatchOperation.Set("/tags", new string[] {}),		// 空の配列を設定
+					//PatchOperation.Set("/tags", new string[] {}),		// 空の配列を作る
 					//PatchOperation.Add("/tags/-", "featured-bikes")	// 配列の末尾に値を追加
+
 				]
 			);
 			//var response = await container.ReplaceItemAsync(companyData, id, new PartitionKey(category)); まるごと置換するならこれもあり

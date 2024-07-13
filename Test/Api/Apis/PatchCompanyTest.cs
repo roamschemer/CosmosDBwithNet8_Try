@@ -56,6 +56,7 @@ namespace Test.Api.Apis
 			var getCompany = getCompanyResponse.Resource;
 			Assert.AreEqual(patchCompany.Name, getCompany.Name, "Name は差し変わる");
 			Assert.AreEqual(targetCompany.CreatedAt, getCompany.CreatedAt, "CreateAt は変わらない");
+			Assert.AreNotEqual(patchCompany.UpdatedAt, getCompany.UpdatedAt, "UpdatedAt は更新される");
 
 		}
 	}

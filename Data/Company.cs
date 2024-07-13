@@ -27,5 +27,8 @@ namespace Data
 
 		[JsonPropertyName("createdAt")]
 		public DateTime? CreatedAt { get; set; }
+
+		[JsonPropertyName("updatedAt")]
+		public DateTime? UpdatedAt { get; set; }
 	}
 }
