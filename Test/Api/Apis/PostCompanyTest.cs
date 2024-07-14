@@ -50,7 +50,7 @@ namespace Test.Api.Apis
 
 			Assert.IsNotNull(getCompany.Id, "IDが付与されている");
 			Assert.IsNotNull(getCompany.CreatedAt, "作成日が付与されている");
-			var getCompanyResponse = await _companyContainer.ReadItemAsync<Company>(getCompany.Id, new PartitionKey((int)getCompany.Category));
+			var getCompanyResponse = await _companyContainer.ReadItemAsync<Company>(getCompany.Id, new PartitionKey(getCompany.Id));
 			Assert.IsNotNull(getCompanyResponse.Resource, "存在を確認");
 
 		}

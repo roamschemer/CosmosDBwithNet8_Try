@@ -35,7 +35,7 @@ namespace Test.Api.Apis
 		[TestMethod]
 		public async Task Run_更新() {
 			var targetCompanies = CompanyFactory.Generate(10);
-			await Task.WhenAll(targetCompanies.Select(company => _companyContainer.CreateItemAsync(company, new PartitionKey((int)company.Category))));
+			await Task.WhenAll(targetCompanies.Select(company => _companyContainer.CreateItemAsync(company, new PartitionKey(company.Id))));
 
 			var targetCompany = targetCompanies.OrderBy(x => _random.Next()).FirstOrDefault();
 
@@ -52,7 +52,7 @@ namespace Test.Api.Apis
 			var okResult = result as OkObjectResult;
 			Assert.IsNotNull(okResult);
 
-			var getCompanyResponse = await _companyContainer.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey((int)targetCompany.Category));
+			var getCompanyResponse = await _companyContainer.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey(targetCompany.Id));
 			var getCompany = getCompanyResponse.Resource;
 			Assert.AreEqual(patchCompany.Name, getCompany.Name, "Name は差し変わる");
 			Assert.AreEqual(targetCompany.CreatedAt, getCompany.CreatedAt, "CreateAt は変わらない");

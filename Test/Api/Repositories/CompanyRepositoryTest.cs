@@ -36,7 +36,7 @@ namespace Test.Api.Repositories
 		public async Task SelectConditionsAsync() {
 			// ターゲットの差し込み
 			var targetCompanies = CompanyFactory.Generate(10);
-			await Task.WhenAll(targetCompanies.Select(company => _container.CreateItemAsync(company, new PartitionKey((int)company.Category))));
+			await Task.WhenAll(targetCompanies.Select(company => _container.CreateItemAsync(company, new PartitionKey(company.Id))));
 
 			// 実行
 			var getCompanies = await _repository.SelectConditionsAsync(new() { });
@@ -53,7 +53,7 @@ namespace Test.Api.Repositories
 			Assert.IsTrue(getCompanies.All(x => x.Name.Contains(selectCompanyName)), "Name は部分一致");
 
 			var selectCompanyCategory = targetCompanies.OrderBy(x => _random.Next()).FirstOrDefault().Category;
-			getCompanies = await _repository.SelectConditionsAsync(new() { { "category", ((int)selectCompanyCategory).ToString() } });
+			getCompanies = await _repository.SelectConditionsAsync(new() { { "category", selectCompanyCategory.ToString() } });
 			Assert.AreEqual(targetCompanies.Where(x => x.Category == selectCompanyCategory).Count(), getCompanies.Count, "全取得数一致");
 			Assert.IsTrue(getCompanies.All(x => x.Category == selectCompanyCategory), "category は完全一致");
 		}
@@ -62,16 +62,16 @@ namespace Test.Api.Repositories
 		public async Task DeleteAsync() {
 			//ダミーデータの差し込み
 			var targetCompanies = CompanyFactory.Generate(10);
-			await Task.WhenAll(targetCompanies.Select(company => _container.CreateItemAsync(company, new PartitionKey((int)company.Category))));
+			await Task.WhenAll(targetCompanies.Select(company => _container.CreateItemAsync(company, new PartitionKey(company.Id))));
 
 			// 実行
 			var targetCompany = targetCompanies.OrderBy(x => _random.Next()).FirstOrDefault();
-			var getCompanyResponse = await _container.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey((int)targetCompany.Category));
+			var getCompanyResponse = await _container.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey(targetCompany.Id));
 			Assert.IsNotNull(getCompanyResponse.Resource, "削除前の存在を確認");
-			var company = await _repository.DeleteAsync(targetCompany.Id, (int)targetCompany.Category);
+			var company = await _repository.DeleteAsync(targetCompany.Id);
 			bool isDeleted = false;
 			try {
-				getCompanyResponse = await _container.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey((int)targetCompany.Category));
+				getCompanyResponse = await _container.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey(targetCompany.Id));
 			}
 			catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound) {
 				isDeleted = true;
@@ -89,7 +89,7 @@ namespace Test.Api.Repositories
 			var company = await _repository.CreateAsync(targetCompany);
 			Assert.IsNotNull(company.Id, "IDが付与されている");
 			Assert.IsNotNull(company.CreatedAt, "作成日が付与されている");
-			var getCompanyResponse = await _container.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey((int)targetCompany.Category));
+			var getCompanyResponse = await _container.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey(targetCompany.Id));
 			Assert.IsNotNull(getCompanyResponse.Resource, "存在を確認");
 		}
 
@@ -97,14 +97,14 @@ namespace Test.Api.Repositories
 		public async Task PatchAsync() {
 			//ダミーデータの差し込み
 			var targetCompanies = CompanyFactory.Generate(10);
-			await Task.WhenAll(targetCompanies.Select(company => _container.CreateItemAsync(company, new PartitionKey((int)company.Category))));
+			await Task.WhenAll(targetCompanies.Select(company => _container.CreateItemAsync(company, new PartitionKey(company.Id))));
 			// 実行
 			var targetCompany = targetCompanies.OrderBy(x => _random.Next()).FirstOrDefault();
 			var patchCompany = CompanyFactory.Generate(1).FirstOrDefault();
 			patchCompany.Id = targetCompany.Id;
 			patchCompany.Category = targetCompany.Category;
 			var company = await _repository.PatchAsync(patchCompany);
-			var getCompanyResponse = await _container.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey((int)targetCompany.Category));
+			var getCompanyResponse = await _container.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey(targetCompany.Id));
 			var getCompany = getCompanyResponse.Resource;
 			Assert.AreEqual(patchCompany.Name, getCompany.Name, "Name は差し変わる");
 			Assert.AreEqual(targetCompany.CreatedAt, getCompany.CreatedAt, "CreateAt は変わらない");

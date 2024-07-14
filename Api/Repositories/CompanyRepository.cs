@@ -9,7 +9,7 @@ namespace Api.Repositories
 	public interface ICompanyRepository
 	{
 		public Task<List<Company>> SelectConditionsAsync(Dictionary<string, string> conditions);
-		public Task<Company> DeleteAsync(string id, int category);
+		public Task<Company> DeleteAsync(string id);
 		public Task<Company> CreateAsync(Company company);
 		public Task<Company> PatchAsync(Company company);
 	}
@@ -47,8 +47,8 @@ namespace Api.Repositories
 		/// 指定されたオブジェクトを削除する
 		/// </summary>
 		/// <returns></returns>
-		public async Task<Company> DeleteAsync(string id, int category) {
-			var response = await _container.DeleteItemAsync<Company>(id, new PartitionKey(category));
+		public async Task<Company> DeleteAsync(string id) {
+			var response = await _container.DeleteItemAsync<Company>(id, new PartitionKey(id));
 			_logger.LogInformation($"{response.RequestCharge}RU 消費しました");
 			return response;
 		}
@@ -57,7 +57,7 @@ namespace Api.Repositories
 			company.Id = Guid.NewGuid().ToString();
 			company.CreatedAt = DateTime.UtcNow;
 			company.UpdatedAt = company.CreatedAt;
-			var response = await _container.CreateItemAsync(company, new PartitionKey((int)company.Category));
+			var response = await _container.CreateItemAsync(company, new PartitionKey(company.Id));
 			_logger.LogInformation($"{response.RequestCharge}RU 消費しました");
 			return response;
 		}
@@ -65,7 +65,7 @@ namespace Api.Repositories
 		public async Task<Company> PatchAsync(Company company) {
 			var response = await _container.PatchItemAsync<Company>(
 				company.Id,
-				new PartitionKey((int)company.Category),
+				new PartitionKey(company.Id),
 				patchOperations: [
 					PatchOperation.Set("/name", company.Name),
 					PatchOperation.Set("/updatedAt", DateTime.UtcNow),
@@ -82,7 +82,7 @@ namespace Api.Repositories
 
 				]
 			);
-			//var response = await container.ReplaceItemAsync(companyData, id, new PartitionKey(category)); まるごと置換するならこれもあり
+			//var response = await container.ReplaceItemAsync(companyData, id, new PartitionKey(name)); まるごと置換するならこれもあり
 
 			_logger.LogInformation($"{response.RequestCharge}RU 消費しました");
 			return response;

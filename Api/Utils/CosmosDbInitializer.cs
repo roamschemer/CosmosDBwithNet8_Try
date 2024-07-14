@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Fluent;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Api.Utils
 {
@@ -19,11 +20,14 @@ namespace Api.Utils
 		/// <param name="connectionString">DB接続文字列</param>
 		/// <param name="databaseId">データベース名</param>
 		public CosmosDbInitializer(string connectionString, string databaseId) {
-			var client = new CosmosClientBuilder(connectionString)
-				.WithSerializerOptions(new() {
-					PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
-				})
-				.Build();
+			var jsonSerializerOptions = new JsonSerializerOptions() {
+				DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+			};
+			var cosmosSystemTextJsonSerializer = new CosmosSystemTextJsonSerializer(jsonSerializerOptions);
+			var cosmosClientOptions = new CosmosClientOptions() {
+				Serializer = cosmosSystemTextJsonSerializer
+			};
+			var client = new CosmosClient(connectionString, cosmosClientOptions);
 			var databaseResponse = client.CreateDatabaseIfNotExistsAsync(databaseId).GetAwaiter().GetResult();
 			_database = databaseResponse.Database;
 		}

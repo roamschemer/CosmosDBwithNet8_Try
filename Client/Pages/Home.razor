@@ -80,6 +80,7 @@
 							<td>@company.Category</td>
 							<td>@company.Name</td>
 							<td>@company.CreatedAt</td>
+							<td>@company.UpdatedAt</td>
 							<td>
 								<button class="btn btn-primary" @onclick="() => EditCompanyAsync(company)">Edit</button>
 								<button class="btn btn-primary" @onclick="() => DeleteCompanyAsync(company)">Delete</button>
@@ -136,7 +137,7 @@
 			parameters.Add($"name={searchName}");
 		}
 		if (searchCategory.HasValue) {
-			parameters.Add($"category={(int)searchCategory}");
+			parameters.Add($"category={searchCategory}");
 		}
 		if (parameters.Any()) {
 			query += "?" + string.Join("&", parameters);
@@ -164,7 +165,7 @@
 	}
 
 	private async Task DeleteCompanyAsync(Company company) {
-		var response = await Http.DeleteAsync($"api/companies/{(int)company.Category}/{company.Id}");
+		var response = await Http.DeleteAsync($"api/companies/{company.Id}");
 		if (response.IsSuccessStatusCode) {
 			await GetCompanyData(); // Fetch updated data
 		}
