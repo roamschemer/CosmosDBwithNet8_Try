@@ -35,7 +35,7 @@ namespace Test.Api.Apis
 		[TestMethod]
 		public async Task Run_クエリパラメータなし() {
 			var targetCompanies = CompanyFactory.Generate(10);
-			await Task.WhenAll(targetCompanies.Select(company => _companyContainer.CreateItemAsync(company, new PartitionKey(company.Id))));
+			await Task.WhenAll(targetCompanies.Select(company => _companyContainer.CreateItemAsync(company, new PartitionKey(company.Category.ToString()))));
 
 			var queryString = new Dictionary<string, StringValues> { };
 			var httpRequest = new DefaultHttpContext().Request;
@@ -58,7 +58,7 @@ namespace Test.Api.Apis
 		[TestMethod]
 		public async Task Run_クエリパラメータ_name() {
 			var targetCompanies = CompanyFactory.Generate(10);
-			await Task.WhenAll(targetCompanies.Select(company => _companyContainer.CreateItemAsync(company, new PartitionKey(company.Id))));
+			await Task.WhenAll(targetCompanies.Select(company => _companyContainer.CreateItemAsync(company, new PartitionKey(company.Category.ToString()))));
 
 			var selectCompanyName = targetCompanies.OrderBy(x => _random.Next()).FirstOrDefault().Name.Substring(1, 3);
 			var queryString = new Dictionary<string, StringValues> {
@@ -81,7 +81,7 @@ namespace Test.Api.Apis
 		[TestMethod]
 		public async Task Run_クエリパラメータ_category() {
 			var targetCompanies = CompanyFactory.Generate(10);
-			await Task.WhenAll(targetCompanies.Select(company => _companyContainer.CreateItemAsync(company, new PartitionKey(company.Id))));
+			await Task.WhenAll(targetCompanies.Select(company => _companyContainer.CreateItemAsync(company, new PartitionKey(company.Category.ToString()))));
 
 			var selectCompanyCategory = targetCompanies.OrderBy(x => _random.Next()).FirstOrDefault().Category;
 			var queryString = new Dictionary<string, StringValues> {

@@ -36,7 +36,7 @@ namespace Test.Api.Repositories
 		public async Task SelectConditionsAsync() {
 			// ターゲットの差し込み
 			var targetCompanies = CompanyFactory.Generate(10);
-			await Task.WhenAll(targetCompanies.Select(company => _container.CreateItemAsync(company, new PartitionKey(company.Id))));
+			await Task.WhenAll(targetCompanies.Select(company => _container.CreateItemAsync(company, new PartitionKey(company.Category.ToString()))));
 
 			// 実行
 			var getCompanies = await _repository.SelectConditionsAsync(new() { });
@@ -62,16 +62,16 @@ namespace Test.Api.Repositories
 		public async Task DeleteAsync() {
 			//ダミーデータの差し込み
 			var targetCompanies = CompanyFactory.Generate(10);
-			await Task.WhenAll(targetCompanies.Select(company => _container.CreateItemAsync(company, new PartitionKey(company.Id))));
+			await Task.WhenAll(targetCompanies.Select(company => _container.CreateItemAsync(company, new PartitionKey(company.Category.ToString()))));
 
 			// 実行
 			var targetCompany = targetCompanies.OrderBy(x => _random.Next()).FirstOrDefault();
-			var getCompanyResponse = await _container.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey(targetCompany.Id));
+			var getCompanyResponse = await _container.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey(targetCompany.Category.ToString()));
 			Assert.IsNotNull(getCompanyResponse.Resource, "削除前の存在を確認");
-			var company = await _repository.DeleteAsync(targetCompany.Id);
+			var company = await _repository.DeleteAsync(targetCompany.Id, targetCompany.Category);
 			bool isDeleted = false;
 			try {
-				getCompanyResponse = await _container.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey(targetCompany.Id));
+				getCompanyResponse = await _container.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey(targetCompany.Category.ToString()));
 			}
 			catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound) {
 				isDeleted = true;
@@ -89,7 +89,7 @@ namespace Test.Api.Repositories
 			var company = await _repository.CreateAsync(targetCompany);
 			Assert.IsNotNull(company.Id, "IDが付与されている");
 			Assert.IsNotNull(company.CreatedAt, "作成日が付与されている");
-			var getCompanyResponse = await _container.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey(targetCompany.Id));
+			var getCompanyResponse = await _container.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey(targetCompany.Category.ToString()));
 			Assert.IsNotNull(getCompanyResponse.Resource, "存在を確認");
 		}
 
@@ -97,14 +97,14 @@ namespace Test.Api.Repositories
 		public async Task PatchAsync() {
 			//ダミーデータの差し込み
 			var targetCompanies = CompanyFactory.Generate(10);
-			await Task.WhenAll(targetCompanies.Select(company => _container.CreateItemAsync(company, new PartitionKey(company.Id))));
+			await Task.WhenAll(targetCompanies.Select(company => _container.CreateItemAsync(company, new PartitionKey(company.Category.ToString()))));
 			// 実行
 			var targetCompany = targetCompanies.OrderBy(x => _random.Next()).FirstOrDefault();
 			var patchCompany = CompanyFactory.Generate(1).FirstOrDefault();
 			patchCompany.Id = targetCompany.Id;
 			patchCompany.Category = targetCompany.Category;
 			var company = await _repository.PatchAsync(patchCompany);
-			var getCompanyResponse = await _container.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey(targetCompany.Id));
+			var getCompanyResponse = await _container.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey(company.Category.ToString()));
 			var getCompany = getCompanyResponse.Resource;
 			Assert.AreEqual(patchCompany.Name, getCompany.Name, "Name は差し変わる");
 			Assert.AreEqual(targetCompany.CreatedAt, getCompany.CreatedAt, "CreateAt は変わらない");

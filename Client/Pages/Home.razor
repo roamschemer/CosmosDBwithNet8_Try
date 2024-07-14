@@ -165,7 +165,7 @@
 	}
 
 	private async Task DeleteCompanyAsync(Company company) {
-		var response = await Http.DeleteAsync($"api/companies/{company.Id}");
+		var response = await Http.DeleteAsync($"api/companies/{company.Id}/{company.Category}");
 		if (response.IsSuccessStatusCode) {
 			await GetCompanyData(); // Fetch updated data
 		}

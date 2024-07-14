@@ -3,13 +3,14 @@ using Data;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Logging;
+using static Data.Company;
 
 namespace Api.Repositories
 {
 	public interface ICompanyRepository
 	{
 		public Task<List<Company>> SelectConditionsAsync(Dictionary<string, string> conditions);
-		public Task<Company> DeleteAsync(string id);
+		public Task<Company> DeleteAsync(string id, CategoryDatas? category);
 		public Task<Company> CreateAsync(Company company);
 		public Task<Company> PatchAsync(Company company);
 	}
@@ -47,8 +48,8 @@ namespace Api.Repositories
 		/// 指定されたオブジェクトを削除する
 		/// </summary>
 		/// <returns></returns>
-		public async Task<Company> DeleteAsync(string id) {
-			var response = await _container.DeleteItemAsync<Company>(id, new PartitionKey(id));
+		public async Task<Company> DeleteAsync(string id, CategoryDatas? category) {
+			var response = await _container.DeleteItemAsync<Company>(id, new PartitionKey(category.ToString()));
 			_logger.LogInformation($"{response.RequestCharge}RU 消費しました");
 			return response;
 		}
@@ -57,7 +58,7 @@ namespace Api.Repositories
 			company.Id = Guid.NewGuid().ToString();
 			company.CreatedAt = DateTime.UtcNow;
 			company.UpdatedAt = company.CreatedAt;
-			var response = await _container.CreateItemAsync(company, new PartitionKey(company.Id));
+			var response = await _container.CreateItemAsync(company, new PartitionKey(company.Category.ToString()));
 			_logger.LogInformation($"{response.RequestCharge}RU 消費しました");
 			return response;
 		}
@@ -65,7 +66,7 @@ namespace Api.Repositories
 		public async Task<Company> PatchAsync(Company company) {
 			var response = await _container.PatchItemAsync<Company>(
 				company.Id,
-				new PartitionKey(company.Id),
+				new PartitionKey(company.Category.ToString()),
 				patchOperations: [
 					PatchOperation.Set("/name", company.Name),
 					PatchOperation.Set("/updatedAt", DateTime.UtcNow),

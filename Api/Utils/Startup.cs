@@ -21,7 +21,7 @@ namespace Api.Utils
 			services.AddApplicationInsightsTelemetryWorkerService();
 			services.ConfigureFunctionsApplicationInsights();
 			//Container
-			services.AddSingleton<ICompanyContainer>(provider => new CosmosContainerWrapper(dbInitializer.GetContainerAsync("companies", "/" + "id", mode, maxThroughput, isCleanUp).GetAwaiter().GetResult()));
+			services.AddSingleton<ICompanyContainer>(provider => new CosmosContainerWrapper(dbInitializer.GetContainerAsync("companies", "/" + "category", mode, maxThroughput, isCleanUp).GetAwaiter().GetResult()));
 			//Controller
 			services.AddSingleton<IGetCompanies, GetCompanies>();
 			services.AddSingleton<IDeleteCompany, DeleteCompany>();

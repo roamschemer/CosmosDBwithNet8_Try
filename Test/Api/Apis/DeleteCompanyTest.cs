@@ -33,14 +33,14 @@ namespace Test.Api.Apis
 		[TestMethod]
 		public async Task Run_削除() {
 			var targetCompanies = CompanyFactory.Generate(10);
-			await Task.WhenAll(targetCompanies.Select(company => _companyContainer.CreateItemAsync(company, new PartitionKey(company.Id))));
+			await Task.WhenAll(targetCompanies.Select(company => _companyContainer.CreateItemAsync(company, new PartitionKey(company.Category.ToString()))));
 
 			var targetCompany = targetCompanies.OrderBy(x => _random.Next()).FirstOrDefault();
-			var getCompanyResponse = await _companyContainer.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey(targetCompany.Id));
+			var getCompanyResponse = await _companyContainer.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey(targetCompany.Category.ToString()));
 			Assert.IsNotNull(getCompanyResponse.Resource, "削除前の存在を確認");
 
 			var httpRequest = new DefaultHttpContext().Request;
-			var result = await _deleteCompany.Run(httpRequest, targetCompany.Id);
+			var result = await _deleteCompany.Run(httpRequest, targetCompany.Id, targetCompany.Category.ToString());
 
 			Assert.IsNotNull(result);
 			var okResult = result as OkObjectResult;
@@ -49,7 +49,7 @@ namespace Test.Api.Apis
 
 			bool isDeleted = false;
 			try {
-				getCompanyResponse = await _companyContainer.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey(targetCompany.Id));
+				getCompanyResponse = await _companyContainer.ReadItemAsync<Company>(targetCompany.Id, new PartitionKey(targetCompany.Category.ToString()));
 			}
 			catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound) {
 				isDeleted = true;
