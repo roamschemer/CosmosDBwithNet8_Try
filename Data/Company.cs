@@ -5,7 +5,7 @@ namespace Data
 {
 	public class Company()
 	{
-		[JsonConverter(typeof(JsonStringEnumConverter))] //効かない様子なのでコメント化しておく
+		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public enum CategoryDatas
 		{
 			Admin,
