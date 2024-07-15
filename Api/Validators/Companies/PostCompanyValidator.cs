@@ -32,19 +32,19 @@ namespace Api.Validators.Companies
 
 			if (company.Category == null) {
 				var message = $"{nameof(Company.Category)} は必須です。";
-				results.Add(new ValidationResult($"{nameof(Company.Category)} は必須です。"));
+				results.Add(new ValidationResult(message));
 				_logger.LogInformation(message);
 			}
 
 			if (company.Name == "つけもの") {
 				var message = $"ただし{company.Name} テメーはダメだ。";
-				results.Add(new ValidationResult($"ただし{company.Name} テメーはダメだ。"));
+				results.Add(new ValidationResult(message));
 				_logger.LogInformation(message);
 			}
 
 			if (company.Name == "キマリ") {
 				var message = $"{company.Name} は通さない。";
-				results.Add(new ValidationResult($"{company.Name} は通さない。"));
+				results.Add(new ValidationResult(message));
 				_logger.LogInformation(message);
 			}
 
