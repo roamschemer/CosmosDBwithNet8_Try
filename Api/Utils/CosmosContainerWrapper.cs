@@ -7,7 +7,12 @@ namespace Api.Utils
 		Container Container { get; set; }
 	}
 
-	public class CosmosContainerWrapper(Container container) : ICompanyContainer
+	// public interface I〇〇Container ← コンテナーが増えるたびにこれを書くのかよ・・・
+	// {
+	// 	Container Container { get; set; }
+	// }
+
+	public class CosmosContainerWrapper(Container container) : ICompanyContainer //,I〇〇Container これも・・・
 	{
 		public Container Container { get; set; } = container;
 
