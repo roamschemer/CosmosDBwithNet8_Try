@@ -10,7 +10,7 @@ using System.Text;
 using System.Text.Json;
 using Test.Factories;
 
-namespace Test.Api.Apis
+namespace Test.Api.Controllers.Companies
 {
 	[TestClass]
 	public class PostCompanyTest

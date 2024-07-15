@@ -10,7 +10,7 @@ using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Test.Factories;
 
-namespace Test.Api.Apis
+namespace Test.Api.Controllers.Companies
 {
 	[TestClass]
 	public class GetCompaniesTest

@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Test.Factories;
 
-namespace Test.Api.Apis
+namespace Test.Api.Controllers.Companies
 {
 	[TestClass]
 	public class DeleteCompanyTest
