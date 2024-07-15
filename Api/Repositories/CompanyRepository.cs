@@ -24,7 +24,6 @@ namespace Api.Repositories
 		/// 検索条件に従いコンテナの値を取得する
 		/// </summary>
 		/// <param name="conditions">検索条件</param>
-		/// <returns>コンテナの値</returns>
 		public async Task<List<Company>> SelectConditionsAsync(Dictionary<string, string> conditions) {
 
 			conditions.TryGetValue("name", out var name);
@@ -47,13 +46,15 @@ namespace Api.Repositories
 		/// <summary>
 		/// 指定されたオブジェクトを削除する
 		/// </summary>
-		/// <returns></returns>
 		public async Task<Company> DeleteAsync(string id, CategoryDatas? category) {
 			var response = await _container.DeleteItemAsync<Company>(id, new PartitionKey(category.ToString()));
 			_logger.LogInformation($"{response.RequestCharge}RU 消費しました");
 			return response;
 		}
 
+		/// <summary>
+		/// 指定されたオブジェクトを作成する
+		/// </summary>
 		public async Task<Company> CreateAsync(Company company) {
 			company.Id = Guid.NewGuid().ToString();
 			company.CreatedAt = DateTime.UtcNow;
@@ -63,6 +64,9 @@ namespace Api.Repositories
 			return response;
 		}
 
+		/// <summary>
+		/// 指定されたオブジェクトを更新する
+		/// </summary>
 		public async Task<Company> PatchAsync(Company company) {
 			var response = await _container.PatchItemAsync<Company>(
 				company.Id,
